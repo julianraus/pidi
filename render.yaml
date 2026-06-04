@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: kepang-ai-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DISABLE_REDIS
+        value: true
+      - key: DATABASE_URL
+        sync: false
+      - key: FRONTEND_URL
+        sync: false
+      - key: ALLOW_VERCEL_PREVIEWS
+        value: true
+      - key: USE_REAL_PRICE_DATA
+        value: true
+      - key: USE_REAL_WEATHER_DATA
+        value: false
+      - key: PRICE_LOOKBACK_DAYS
+        value: 7
+      - key: BI_HARGAPANGAN_URL
+        value: https://www.bi.go.id/hargapangan/WebSite/TabelHarga
+      - key: BMKG_FORECAST_API_URL
+        value: https://api.bmkg.go.id/publik/prakiraan-cuaca
+      - key: BMKG_ALERTS_RSS_URL
+        value: https://www.bmkg.go.id/alerts/nowcast/id
+      - key: BMKG_REGION_ADM4_CODES
+        value: '{"JW":["31.71.03.1001"],"SM":["12.71.01.1001"],"KL":["64.72.01.1001"],"SL":["73.71.01.1001"],"NT":["52.71.01.1001"],"PM":["91.71.01.1001"]}'
+      - key: GOOGLE_MAPS_API_KEY
+        sync: false
+      - key: GOOGLE_ROUTES_TIMEOUT_MS
+        value: 7000
+      - key: ANTHROPIC_API_KEY
+        sync: false
