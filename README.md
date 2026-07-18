@@ -124,7 +124,12 @@ Untuk logistik, Google dipakai sebagai sumber real-time hanya untuk jarak dan ET
 
 - `docs/MARKET_FIT_AND_UX.md` - analisa target user, problem-market fit, UX rationale, dan model bisnis.
 - `docs/DATA_SOURCES_AND_FORECASTING.md` - policy data real-time, scraping/API, forecast, unavailable source, dan expected production fields.
+- `docs/SUBMISSION_ANSWERS_REFINED.md` - jawaban form Submission Tahap 2 yang sudah dipoles sesuai guidebook.
+- `docs/GUIDEBOOK_ALIGNMENT_CHECKLIST.md` - checklist kriteria guidebook, evidence prototype, dan gap yang perlu ditutup.
+- `docs/SUBMISSION_SUPPORTING_EVIDENCE.md` - architecture, data source matrix, impact KPI, business model, dan attachment plan.
+- `docs/EVIDENCE_OF_DEMAND_RESEARCH.md` - riset Evidence of Demand berdasarkan problem nyata dan mapping solusi.
 - `docs/TESTING.md` - automated checks, manual demo checks, skenario UX test, dan batasan MVP.
+- `docs/TEST_REPORT_2026-06-04.md` - hasil build, API check, dan browser verification terbaru.
 - `docs/DEPLOYMENT.md` - panduan deploy Render backend, Vercel frontend, dan Supabase Postgres.
 
 ## Catatan MVP

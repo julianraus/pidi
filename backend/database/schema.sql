@@ -56,7 +56,8 @@ CREATE TABLE commodity_prices (
   commodity_id  INTEGER REFERENCES commodities(id),
   price_idr     DECIMAL(12,2) NOT NULL,
   price_source  VARCHAR(50),  -- 'bps','bapanas','market','manual'
-  PRIMARY KEY (time, region_id, commodity_id)
+  price_level   VARCHAR(20) NOT NULL DEFAULT 'consumer', -- 'consumer' (pasar tradisional) | 'producer'
+  PRIMARY KEY (time, region_id, commodity_id, price_level)
 );
 
 
@@ -176,4 +177,24 @@ SELECT DISTINCT ON (cp.region_id, cp.commodity_id)
 FROM commodity_prices cp
 JOIN regions r ON cp.region_id = r.id
 JOIN commodities c ON cp.commodity_id = c.id
+WHERE cp.price_level = 'consumer'
 ORDER BY cp.region_id, cp.commodity_id, cp.time DESC;
+
+CREATE VIEW v_producer_retail_margin AS
+SELECT DISTINCT ON (r.id, c.id)
+  r.code AS region_code,
+  r.name AS region_name,
+  c.code AS commodity_code,
+  c.name AS commodity_name,
+  producer.price_idr AS producer_price_idr,
+  consumer.price_idr AS consumer_price_idr,
+  ROUND(consumer.price_idr - producer.price_idr, 0) AS margin_idr,
+  ROUND(((consumer.price_idr - producer.price_idr) / NULLIF(producer.price_idr, 0)) * 100, 1) AS margin_pct,
+  GREATEST(producer.time, consumer.time) AS as_of
+FROM regions r
+JOIN commodities c ON TRUE
+JOIN commodity_prices producer
+  ON producer.region_id = r.id AND producer.commodity_id = c.id AND producer.price_level = 'producer'
+JOIN commodity_prices consumer
+  ON consumer.region_id = r.id AND consumer.commodity_id = c.id AND consumer.price_level = 'consumer'
+ORDER BY r.id, c.id, producer.time DESC, consumer.time DESC;

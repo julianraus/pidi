@@ -1,4 +1,4 @@
-// ─── MetricCard ──────────────────────────────────────────────────────────────
+// MetricCard
 export function MetricCard({ label, value, sub, valueClass = '' }) {
   return (
     <div className="metric-card">
@@ -9,35 +9,36 @@ export function MetricCard({ label, value, sub, valueClass = '' }) {
   );
 }
 
-// ─── StatusBadge ─────────────────────────────────────────────────────────────
+// StatusBadge
 const BADGE_MAP = {
-  surplus:   'badge-green',
-  normal:    'badge-green',
-  optimal:   'badge-green',
+  surplus: 'badge-green',
+  normal: 'badge-green',
+  optimal: 'badge-green',
   delivered: 'badge-green',
-  aman:      'badge-green',
-  deficit:   'badge-red',
-  critical:  'badge-red',
-  kritis:    'badge-red',
-  high:      'badge-yellow',
-  tinggi:    'badge-yellow',
-  medium:    'badge-yellow',
-  sedang:    'badge-yellow',
-  warning:   'badge-yellow',
-  siaga_1:   'badge-yellow',
-  siaga_2:   'badge-yellow',
-  balanced:  'badge-blue',
-  info:      'badge-blue',
-  waspada:   'badge-blue',
-  mixed:     'badge-blue',
+  aman: 'badge-green',
+  ready: 'badge-green',
+  deficit: 'badge-red',
+  critical: 'badge-red',
+  kritis: 'badge-red',
+  high: 'badge-yellow',
+  tinggi: 'badge-yellow',
+  medium: 'badge-yellow',
+  sedang: 'badge-yellow',
+  warning: 'badge-yellow',
+  siaga_1: 'badge-yellow',
+  siaga_2: 'badge-yellow',
+  balanced: 'badge-blue',
+  info: 'badge-blue',
+  waspada: 'badge-blue',
+  mixed: 'badge-blue',
   'real-time': 'badge-green',
   'real-time-capable': 'badge-blue',
   'official-release': 'badge-blue',
-  forecast:  'badge-yellow',
+  forecast: 'badge-yellow',
   unavailable: 'badge-red',
-  planned:   'badge-gray',
+  planned: 'badge-gray',
   reference: 'badge-gray',
-  in_transit:'badge-blue',
+  in_transit: 'badge-blue',
 };
 
 export function StatusBadge({ status, label }) {
@@ -45,7 +46,7 @@ export function StatusBadge({ status, label }) {
   return <span className={cls}>{label || status}</span>;
 }
 
-// ─── LoadingSpinner ───────────────────────────────────────────────────────────
+// LoadingSpinner
 export function LoadingSpinner({ text = 'Memuat data...' }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-gray-400">
@@ -58,7 +59,7 @@ export function LoadingSpinner({ text = 'Memuat data...' }) {
   );
 }
 
-// ─── ErrorState ──────────────────────────────────────────────────────────────
+// ErrorState
 export function ErrorState({ message, onRetry }) {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-gray-400">
@@ -70,11 +71,11 @@ export function ErrorState({ message, onRetry }) {
   );
 }
 
-// ─── AlertBanner ─────────────────────────────────────────────────────────────
+// AlertBanner
 const SEVERITY_STYLES = {
   emergency: 'bg-red-50 border-red-200 text-red-800',
-  warning:   'bg-yellow-50 border-yellow-200 text-yellow-800',
-  watch:     'bg-blue-50 border-blue-200 text-blue-800',
+  warning: 'bg-yellow-50 border-yellow-200 text-yellow-800',
+  watch: 'bg-blue-50 border-blue-200 text-blue-800',
 };
 
 export function AlertBanner({ alerts = [] }) {
@@ -82,17 +83,17 @@ export function AlertBanner({ alerts = [] }) {
   if (!list.length) return null;
   return (
     <div className="space-y-2">
-      {list.map((a) => (
-        <div key={a.id} className={`border rounded-lg px-4 py-3 text-sm ${SEVERITY_STYLES[a.severity] || SEVERITY_STYLES.watch}`}>
-          <p className="font-medium">{a.title}</p>
-          <p className="text-xs mt-0.5 opacity-80">{a.description}</p>
+      {list.map((alert) => (
+        <div key={alert.id} className={`border rounded-lg px-4 py-3 text-sm ${SEVERITY_STYLES[alert.severity] || SEVERITY_STYLES.watch}`}>
+          <p className="font-medium">{alert.title}</p>
+          <p className="text-xs mt-0.5 opacity-80">{alert.description}</p>
         </div>
       ))}
     </div>
   );
 }
 
-// ─── SectionHeader ────────────────────────────────────────────────────────────
+// SectionHeader
 export function SectionHeader({ title, subtitle, action }) {
   return (
     <div className="flex items-start justify-between mb-4">
@@ -105,7 +106,7 @@ export function SectionHeader({ title, subtitle, action }) {
   );
 }
 
-// ─── ProgressBar ─────────────────────────────────────────────────────────────
+// ProgressBar
 export function ProgressBar({ value, max = 100, color = 'bg-green-500' }) {
   const pct = Math.min(100, Math.max(0, (value / max) * 100));
   return (

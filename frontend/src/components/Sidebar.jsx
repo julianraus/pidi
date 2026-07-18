@@ -62,6 +62,15 @@ const NAV_ITEMS = [
     label: 'AI Forecasting',
     page: 'ai',
   },
+  {
+    icon: (
+      <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+        <path fillRule="evenodd" d="M4 3a2 2 0 012-2h5.586A2 2 0 0113 1.586L16.414 5A2 2 0 0117 6.414V17a2 2 0 01-2 2H6a2 2 0 01-2-2V3zm7 0H6v14h9V7h-4V3zm-3 7a1 1 0 011-1h4a1 1 0 110 2H9a1 1 0 01-1-1zm0 4a1 1 0 011-1h4a1 1 0 110 2H9a1 1 0 01-1-1z" clipRule="evenodd" />
+      </svg>
+    ),
+    label: 'Market & Evidence',
+    page: 'evidence',
+  },
 ];
 
 export default function Sidebar({ currentPage, onNavigate }) {
@@ -94,8 +103,8 @@ export default function Sidebar({ currentPage, onNavigate }) {
 
       {/* Footer */}
       <div className="hidden sm:block px-4 py-3 border-t border-gray-100">
-        <p className="text-[10px] text-gray-400">Decision support MVP</p>
-        <p className="text-[10px] text-gray-400">BI, BPS, BMKG, Bapanas</p>
+        <p className="text-[10px] text-gray-400">Decision intelligence MVP</p>
+        <p className="text-[10px] text-gray-400">Data lineage aktif</p>
       </div>
     </aside>
   );

@@ -19,6 +19,7 @@ prototype is classified as one of four states:
 | Logistics route ETA/distance | real-time capable | Google Routes API when `GOOGLE_MAPS_API_KEY` is configured | Only valid for road-routable legs. Sea/cargo legs require port and carrier data, so they are not labelled as Google real-time. |
 | Logistics route cost/capacity | forecast / unavailable | Current MVP uses route-table estimates; production requires Bulog/operator/logistics partner integration | Route cost/capacity data is operational partner data and must not be claimed as real-time without a carrier feed. |
 | Resilience score, shock scenario, action plan | forecast | Kepang AI model | These outputs must always be labelled model-derived and validated against operational data. |
+| ENSO phase (harvest risk input) | real-time capable | NOAA CPC Oceanic Nino Index `https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt` | Public ASCII feed, no API key. Replaces the previously hardcoded `weak_la_nina` assumption; fetched once per weather poll cycle and classified into `neutral`/`weak_la_nina`/`strong_la_nina`/`el_nino`. |
 
 ## Scraping / API Rules
 
@@ -157,6 +158,33 @@ Preferred sources:
 - BI Harga Pangan.
 - Bapanas Panel Harga.
 - BPS official price tables for lower-frequency validation.
+
+## Research Notes: Supply-Demand and Stock Sourcing (2026-07-18)
+
+Investigated whether `supply_demand`, `distribution_routes`, and `shipments` (currently
+seed-only, fabricated tables) could be connected to a real public source:
+
+- **Bapanas stock data (`data.badanpangan.go.id`)**: dataset pages advertise CSV/JSON/XLSX
+  export, but the actual files are gated behind the internal S.A.P.A application
+  (`https://sapa.badanpangan.go.id`), not a public API or direct download link. Requires
+  an institutional account; not self-serve. Confirms the current `unavailable` status is
+  accurate, not a shortcut that was missed.
+- **BPS production data (padi/jagung per provinsi)**: BPS WebAPI (`webapi.bps.go.id`) can
+  serve this as a dynamic table via the same `/list/model/data` pattern already used for
+  prices in `priceService.js`, but requires (a) a free `BPS_API_KEY` from
+  `https://webapi.bps.go.id/developer/`, and (b) looking up the specific `var`/table id for
+  production statistics (different from the price `var` ids already in
+  `BPS_COMMODITY_VARS`). This would only cover the production side of supply-demand, not
+  demand or warehouse stock, which still requires Bapanas/Bulog/Dinas Pangan integration.
+- **Logistics cost/capacity/carrier data**: no public API found; this is operational partner
+  data by nature (Bulog, port operators, freight carriers) and is not expected to have an
+  open endpoint. Google Routes API (already integrated) remains the only real-time piece
+  (distance/ETA for road legs).
+
+Recommended next step if pursuing this further: register a BPS API key and wire up
+production-side `supply_demand.production_ton` from BPS as a partial real-data source,
+while keeping `demand_ton`, `stock_ton`, and logistics cost/capacity labelled `unavailable`
+until an institutional data-sharing agreement exists.
 
 ## Public References
 

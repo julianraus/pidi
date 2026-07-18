@@ -168,13 +168,14 @@ function scenarioLabel(score) {
 }
 
 export default function Resilience() {
-  const { data, loading, error } = useData(() => forecastApi.getResilience(), [], { pollInterval: 300000 });
+  const { data, loading } = useData(() => forecastApi.getResilience(), [], { pollInterval: 300000 });
   const [scenario, setScenario] = useState({
     weakerRupiah: 5,
     logisticsCostUp: 8,
     harvestLoss: 4,
   });
 
+  const usingFallback = !data;
   const resilienceData = data || RESILIENCE_FALLBACK;
   const summary = resilienceData.summary || {};
   const macro = resilienceData.macro || {};
@@ -205,7 +206,7 @@ export default function Resilience() {
         <div className="flex flex-wrap gap-2 text-xs">
           <StatusBadge status={summary.resilience_level} label={LEVEL_LABELS[summary.resilience_level] || 'Waspada'} />
           <span className="badge-blue">Pilot 6 wilayah agregasi</span>
-          {error && <span className="badge-yellow">Forecast mode</span>}
+          {usingFallback && <span className="badge-yellow">Forecast mode</span>}
           <span className="badge-gray">Update makro {macro.as_of || '2026-06-03'}</span>
         </div>
       </div>
@@ -216,7 +217,7 @@ export default function Resilience() {
             <p className="text-sm font-medium text-yellow-900">Data lineage policy</p>
             <p className="text-xs text-yellow-800 mt-1">{dataPolicy.principle}</p>
           </div>
-          <StatusBadge status={error ? 'forecast' : 'official-release'} label={error ? 'Forecast karena API offline' : 'Source-aware'} />
+          <StatusBadge status={usingFallback ? 'forecast' : 'official-release'} label={usingFallback ? 'Forecast karena API offline' : 'Source-aware'} />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 text-xs text-yellow-800">
           <p><span className="font-medium">Data asli:</span> {dataPolicy.real_time_rule}</p>

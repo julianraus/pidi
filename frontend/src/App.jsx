@@ -7,6 +7,7 @@ import Inflation    from './pages/Inflation.jsx';
 import Logistics    from './pages/Logistics.jsx';
 import Weather      from './pages/Weather.jsx';
 import AiForecast   from './pages/AiForecast.jsx';
+import Evidence     from './pages/Evidence.jsx';
 
 const PAGES = {
   dashboard: Dashboard,
@@ -16,10 +17,11 @@ const PAGES = {
   logistics: Logistics,
   weather:   Weather,
   ai:        AiForecast,
+  evidence:  Evidence,
 };
 
 export default function App() {
-  const [page, setPage] = useState('resilience');
+  const [page, setPage] = useState('dashboard');
   const Page = PAGES[page] || Dashboard;
 
   return (

@@ -20,12 +20,14 @@ router.get('/commodities', async (req, res, next) => {
             time
           FROM commodity_prices
           WHERE time >= (SELECT max_time FROM latest_time) - INTERVAL '7 days'
+            AND price_level = 'consumer'
           ORDER BY commodity_id, time DESC
         ),
         national_avg AS (
           SELECT commodity_id, AVG(price_idr) AS avg_price
           FROM commodity_prices
           WHERE time >= (SELECT max_time FROM latest_time) - INTERVAL '7 days'
+            AND price_level = 'consumer'
           GROUP BY commodity_id
         ),
         prev_month AS (
@@ -33,6 +35,7 @@ router.get('/commodities', async (req, res, next) => {
           FROM commodity_prices
           WHERE time BETWEEN (SELECT max_time FROM latest_time) - INTERVAL '37 days'
             AND (SELECT max_time FROM latest_time) - INTERVAL '30 days'
+            AND price_level = 'consumer'
           GROUP BY commodity_id
         ),
         prev_year AS (
@@ -40,6 +43,7 @@ router.get('/commodities', async (req, res, next) => {
           FROM commodity_prices
           WHERE time BETWEEN (SELECT max_time FROM latest_time) - INTERVAL '365 days'
             AND (SELECT max_time FROM latest_time) - INTERVAL '358 days'
+            AND price_level = 'consumer'
           GROUP BY commodity_id
         )
         SELECT
@@ -75,12 +79,14 @@ router.get('/inflation', async (req, res, next) => {
             AVG(price_idr) AS avg_price
           FROM commodity_prices
           WHERE time > NOW() - INTERVAL '13 months'
+            AND price_level = 'consumer'
           GROUP BY DATE_TRUNC('month', time), commodity_id
         ),
         baseline AS (
           SELECT commodity_id, AVG(price_idr) AS base_price
           FROM commodity_prices
           WHERE time BETWEEN NOW() - INTERVAL '13 months' AND NOW() - INTERVAL '12 months'
+            AND price_level = 'consumer'
           GROUP BY commodity_id
         )
         SELECT
@@ -131,6 +137,7 @@ router.get('/history/:code', async (req, res, next) => {
         JOIN commodities c ON cp.commodity_id = c.id
         WHERE c.code = $1
           AND cp.time > NOW() - ($2 || ' days')::INTERVAL
+          AND cp.price_level = 'consumer'
         GROUP BY DATE_TRUNC('day', cp.time)
         ORDER BY date ASC
       `, [code, parseInt(days)]);
@@ -158,9 +165,30 @@ router.get('/regional/:code', async (req, res, next) => {
         JOIN regions r ON cp.region_id = r.id
         JOIN commodities c ON cp.commodity_id = c.id
         WHERE c.code = $1
+          AND cp.price_level = 'consumer'
         ORDER BY cp.region_id, cp.time DESC
       `, [code]);
     }, 1800);
+
+    res.json({ success: true, data });
+  } catch (err) { next(err); }
+});
+
+// GET /api/prices/producer-margin
+// Gap between producer-level and consumer-level (pasar tradisional) prices,
+// both sourced live from BI Harga Pangan (price_type_id 4 vs 1). A large gap
+// signals distribution/logistics inefficiency between farmer and market.
+router.get('/producer-margin', async (req, res, next) => {
+  try {
+    const data = await cached('prices:producer-margin', async () => {
+      return query(`
+        SELECT
+          region_code, region_name, commodity_code, commodity_name,
+          producer_price_idr, consumer_price_idr, margin_idr, margin_pct, as_of
+        FROM v_producer_retail_margin
+        ORDER BY margin_pct DESC NULLS LAST
+      `);
+    }, parseInt(process.env.CACHE_TTL_PRICES) || 3600);
 
     res.json({ success: true, data });
   } catch (err) { next(err); }

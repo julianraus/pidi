@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { query } from '../db.js';
 import { invalidate } from '../cache.js';
-import { fetchNationalBiChartPriceSeries, fetchRegionalBiPriceSeries } from './biPriceService.js';
+import { fetchNationalBiChartPriceSeries, fetchRegionalBiPriceSeries, fetchRegionalBiProducerPriceSeries } from './biPriceService.js';
 
 const USE_MOCK = process.env.USE_MOCK_DATA === 'true';
 const USE_REAL_PRICE_DATA = process.env.USE_REAL_PRICE_DATA === 'true';
@@ -65,7 +65,9 @@ async function fetchBPSPrices(commodityCode) {
     if (!varId || !process.env.BPS_API_URL || !process.env.BPS_API_KEY) return [];
 
     const url = `${process.env.BPS_API_URL}/list/model/data/lang/ind/domain/0000/var/${varId}/th/2026/key/${process.env.BPS_API_KEY}`;
-    const resp = await axios.get(url, { timeout: 15000 });
+    // BPS WebAPI's WAF blocks requests without a browser-like User-Agent,
+    // independent of key validity (verified 2026-07-18).
+    const resp = await axios.get(url, { timeout: 15000, headers: { 'User-Agent': 'Mozilla/5.0 (compatible; FoodSecurityBot/1.0)' } });
     return parseBPSResponse(resp.data, commodityCode);
   } catch (err) {
     console.warn(`[BPS] Failed for ${commodityCode}:`, err.message);
@@ -78,6 +80,7 @@ async function generateSyntheticBpsPrices(commodityCode) {
   return regions.map(r => ({
     region_id: r.id,
     price_idr: generateSyntheticPrice(commodityCode, r.code === 'PM' ? 1.18 : r.code === 'NT' ? 1.12 : 1.0),
+    price_source: 'forecast',
   }));
 }
 
@@ -99,6 +102,7 @@ function parseBPSResponse(data, commodityCode) {
   return data.data.map(item => ({
     region_code: provinceToRegion[item.kd_prop?.toString().slice(0, 2)] || 'JW',
     price_idr: parseFloat(item.value) || 0,
+    price_source: 'bps',
   }));
 }
 
@@ -112,6 +116,11 @@ function getDateRange(lookbackDays = 7) {
 async function fetchBiPrices({ lookbackDays = 7 }) {
   const { startDate, endDate } = getDateRange(lookbackDays);
   return fetchRegionalBiPriceSeries({ startDate, endDate });
+}
+
+async function fetchBiProducerPrices({ lookbackDays = 7 }) {
+  const { startDate, endDate } = getDateRange(lookbackDays);
+  return fetchRegionalBiProducerPriceSeries({ startDate, endDate });
 }
 
 async function fetchBiNationalChartPrices({ lookbackDays = 7 }) {
@@ -148,12 +157,12 @@ export async function pollPriceData(options = {}) {
 
           for (const region of regions) {
             await query(`
-              INSERT INTO commodity_prices (time, region_id, commodity_id, price_idr, price_source)
-              VALUES ($1, $2, $3, $4, $5)
-              ON CONFLICT (time, region_id, commodity_id) DO UPDATE SET
+              INSERT INTO commodity_prices (time, region_id, commodity_id, price_idr, price_source, price_level)
+              VALUES ($1, $2, $3, $4, $5, $6)
+              ON CONFLICT (time, region_id, commodity_id, price_level) DO UPDATE SET
                 price_idr = EXCLUDED.price_idr,
                 price_source = EXCLUDED.price_source
-            `, [price.time, region.id, commodityId, price.price_idr, price.price_source]);
+            `, [price.time, region.id, commodityId, price.price_idr, price.price_source, price.price_level || 'consumer']);
             updated++;
           }
         }
@@ -165,13 +174,36 @@ export async function pollPriceData(options = {}) {
         if (!regionId || !commodityId || !price.price_idr) continue;
 
         await query(`
-          INSERT INTO commodity_prices (time, region_id, commodity_id, price_idr, price_source)
-          VALUES ($1, $2, $3, $4, $5)
-          ON CONFLICT (time, region_id, commodity_id) DO UPDATE SET
+          INSERT INTO commodity_prices (time, region_id, commodity_id, price_idr, price_source, price_level)
+          VALUES ($1, $2, $3, $4, $5, $6)
+          ON CONFLICT (time, region_id, commodity_id, price_level) DO UPDATE SET
             price_idr = EXCLUDED.price_idr,
             price_source = EXCLUDED.price_source
-        `, [price.time, regionId, commodityId, price.price_idr, price.price_source]);
+        `, [price.time, regionId, commodityId, price.price_idr, price.price_source, price.price_level || 'consumer']);
         updated++;
+      }
+
+      // Producer-level price (BI price_type_id=4) as a secondary, independent
+      // signal used for the producer-retail margin view. Failure here must
+      // not affect consumer price polling above.
+      try {
+        const producerPrices = await fetchBiProducerPrices({ lookbackDays });
+        for (const price of producerPrices) {
+          const regionId = regionMap[price.region_code];
+          const commodityId = commodityMap[price.commodity_code];
+          if (!regionId || !commodityId || !price.price_idr) continue;
+
+          await query(`
+            INSERT INTO commodity_prices (time, region_id, commodity_id, price_idr, price_source, price_level)
+            VALUES ($1, $2, $3, $4, $5, 'producer')
+            ON CONFLICT (time, region_id, commodity_id, price_level) DO UPDATE SET
+              price_idr = EXCLUDED.price_idr,
+              price_source = EXCLUDED.price_source
+          `, [price.time, regionId, commodityId, price.price_idr, price.price_source]);
+          updated++;
+        }
+      } catch (error) {
+        console.warn(`[prices] Producer-level BI fetch failed, skipping margin data: ${error.message}`);
       }
     } else {
       const now = new Date();
@@ -181,14 +213,15 @@ export async function pollPriceData(options = {}) {
         for (const price of prices) {
           const regionId = price.region_id || regionMap[price.region_code];
           if (!regionId || !price.price_idr) continue;
+          const source = price.price_source || 'forecast';
 
           await query(`
-            INSERT INTO commodity_prices (time, region_id, commodity_id, price_idr, price_source)
-            VALUES ($1, $2, $3, $4, 'bps')
-            ON CONFLICT (time, region_id, commodity_id) DO UPDATE SET
+            INSERT INTO commodity_prices (time, region_id, commodity_id, price_idr, price_source, price_level)
+            VALUES ($1, $2, $3, $4, $5, 'consumer')
+            ON CONFLICT (time, region_id, commodity_id, price_level) DO UPDATE SET
               price_idr = EXCLUDED.price_idr,
-              price_source = 'bps'
-          `, [now, regionId, commodity.id, price.price_idr]);
+              price_source = EXCLUDED.price_source
+          `, [now, regionId, commodity.id, price.price_idr, source]);
           updated++;
         }
       }
@@ -211,9 +244,9 @@ export async function pollPriceData(options = {}) {
         if (!regionId || !price.price_idr) continue;
 
         await query(`
-          INSERT INTO commodity_prices (time, region_id, commodity_id, price_idr, price_source)
-            VALUES ($1, $2, $3, $4, 'forecast')
-          ON CONFLICT (time, region_id, commodity_id) DO UPDATE SET
+          INSERT INTO commodity_prices (time, region_id, commodity_id, price_idr, price_source, price_level)
+            VALUES ($1, $2, $3, $4, 'forecast', 'consumer')
+          ON CONFLICT (time, region_id, commodity_id, price_level) DO UPDATE SET
             price_idr = EXCLUDED.price_idr,
             price_source = 'forecast'
         `, [now, regionId, commodity.id, price.price_idr]);

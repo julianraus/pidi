@@ -9,13 +9,14 @@ const USE_REAL_WEATHER_DATA = process.env.USE_REAL_WEATHER_DATA === 'true';
 const ALLOW_SYNTHETIC_FALLBACK = process.env.ALLOW_SYNTHETIC_FALLBACK === 'true';
 const BMKG_FORECAST_API_URL = process.env.BMKG_FORECAST_API_URL || 'https://api.bmkg.go.id/publik/prakiraan-cuaca';
 const BMKG_ALERTS_RSS_URL = process.env.BMKG_ALERTS_RSS_URL || 'https://www.bmkg.go.id/alerts/nowcast/id';
+const NOAA_ONI_URL = process.env.NOAA_ONI_URL || 'https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt';
 
 const DEFAULT_BMKG_ADM4_CODES = {
   JW: ['31.71.03.1001'],
   SM: ['12.71.01.1001'],
   KL: ['64.72.01.1001'],
   SL: ['73.71.01.1001'],
-  NT: ['52.71.01.1001'],
+  NT: ['52.71.05.1001'],
   PM: ['91.71.01.1001'],
 };
 
@@ -233,15 +234,19 @@ function mergeForecasts(forecastSets) {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
+function tagSource(forecasts, source) {
+  return forecasts.map((forecast) => ({ ...forecast, source }));
+}
+
 async function fetchBMKGForecast(regionCode) {
   if (!USE_REAL_WEATHER_DATA) {
-    if (ALLOW_SYNTHETIC_FALLBACK) return generateSyntheticForecast(regionCode);
+    if (ALLOW_SYNTHETIC_FALLBACK) return tagSource(generateSyntheticForecast(regionCode), 'forecast');
     throw new Error('BMKG real-time weather data is disabled and synthetic fallback is not allowed');
   }
 
   const adm4Codes = getAdm4Codes()[regionCode] || [];
   if (adm4Codes.length === 0) {
-    if (USE_MOCK && ALLOW_SYNTHETIC_FALLBACK) return generateSyntheticForecast(regionCode);
+    if (USE_MOCK && ALLOW_SYNTHETIC_FALLBACK) return tagSource(generateSyntheticForecast(regionCode), 'forecast');
     throw new Error(`No BMKG adm4 codes configured for ${regionCode}`);
   }
 
@@ -256,11 +261,11 @@ async function fetchBMKGForecast(regionCode) {
       throw new Error(`BMKG returned no forecast data for ${regionCode}`);
     }
 
-    return mergeForecasts(forecastSets);
+    return tagSource(mergeForecasts(forecastSets), 'bmkg');
   } catch (error) {
     if (!USE_MOCK || !ALLOW_SYNTHETIC_FALLBACK) throw error;
     console.warn(`[BMKG] Real forecast failed for ${regionCode}, using explicitly enabled forecast fallback:`, error.message);
-    return generateSyntheticForecast(regionCode);
+    return tagSource(generateSyntheticForecast(regionCode), 'forecast');
   }
 }
 
@@ -275,6 +280,32 @@ function getRainfallNormal(regionCode, month) {
   };
 
   return normals[regionCode]?.[month - 1] || 150;
+}
+
+// Classifies the latest NOAA Oceanic Nino Index (ONI) reading into the
+// phase buckets used by weatherRiskService.computeRiskScore's ensoMultiplier.
+function classifyOni(anomaly) {
+  if (anomaly <= -1.0) return 'strong_la_nina';
+  if (anomaly <= -0.5) return 'weak_la_nina';
+  if (anomaly >= 0.5) return 'el_nino';
+  return 'neutral';
+}
+
+async function fetchEnsoPhase() {
+  try {
+    const response = await axios.get(NOAA_ONI_URL, { timeout: 15000, responseType: 'text' });
+    const lines = String(response.data).trim().split('\n').slice(1); // skip header row
+    const lastLine = lines[lines.length - 1]?.trim().split(/\s+/);
+    if (!lastLine || lastLine.length < 4) throw new Error('Unexpected ONI file format');
+
+    const anomaly = Number(lastLine[3]);
+    if (!Number.isFinite(anomaly)) throw new Error('Could not parse ONI anomaly value');
+
+    return { phase: classifyOni(anomaly), anomaly, season: lastLine[0], year: lastLine[1] };
+  } catch (error) {
+    console.warn('[ENSO] Failed to fetch NOAA ONI index, defaulting to neutral:', error.message);
+    return { phase: 'neutral', anomaly: null, season: null, year: null };
+  }
 }
 
 function getAlertSeverity(title = '', description = '') {
@@ -358,7 +389,7 @@ async function refreshWeatherAlerts(regionMap) {
   }
 }
 
-async function updateRiskScore(region, forecasts, rainfallDev) {
+async function updateRiskScore(region, forecasts, rainfallDev, ensoPhase) {
   const commodities = await query(`
     WITH latest_period AS (
       SELECT MAX(sd.period_month) AS period_month
@@ -385,7 +416,7 @@ async function updateRiskScore(region, forecasts, rainfallDev) {
       rainfallDev,
       avgRainfallMm,
       maxRainfallMm,
-      ensoPhase: 'weak_la_nina',
+      ensoPhase,
     });
     const loss = estimateHarvestLoss(risk.score, Number(commodity.production_ton || 0));
     const notes = rainfallDev >= 20
@@ -397,7 +428,7 @@ async function updateRiskScore(region, forecasts, rainfallDev) {
     await query(`
       INSERT INTO harvest_risk_scores
         (region_id, commodity_id, risk_score, risk_level, rainfall_dev, flood_risk, drought_index, elnino_phase, estimated_loss_ton, estimated_loss_pct, notes)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, 'weak_la_nina', $8, $9, $10)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
     `, [
       region.id,
       commodity.id,
@@ -406,6 +437,7 @@ async function updateRiskScore(region, forecasts, rainfallDev) {
       Number(rainfallDev.toFixed(2)),
       risk.floodRisk,
       risk.droughtRisk,
+      ensoPhase,
       loss.loss_ton,
       loss.loss_pct,
       notes,
@@ -419,6 +451,9 @@ export async function pollWeatherData() {
   const currentMonth = new Date().getMonth() + 1;
   let updated = 0;
 
+  const enso = await fetchEnsoPhase();
+  console.log(`[ENSO] Phase: ${enso.phase} (ONI ${enso.season || '?'} ${enso.year || '?'} anomaly ${enso.anomaly ?? 'n/a'})`);
+
   for (const region of regions) {
     try {
       const forecasts = await fetchBMKGForecast(region.code);
@@ -428,7 +463,7 @@ export async function pollWeatherData() {
         await query(`
           INSERT INTO weather_forecasts
             (region_id, forecast_date, temperature_c, rainfall_mm, humidity_pct, wind_speed_mps, weather_code, source)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, 'bmkg')
+          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
           ON CONFLICT (region_id, forecast_date) DO UPDATE SET
             temperature_c = EXCLUDED.temperature_c,
             rainfall_mm = EXCLUDED.rainfall_mm,
@@ -445,13 +480,14 @@ export async function pollWeatherData() {
           forecast.humidity_pct,
           forecast.wind_speed_mps,
           forecast.weather_code,
+          forecast.source || 'bmkg',
         ]);
         updated++;
       }
 
       const avgForecastRain = forecasts.reduce((sum, forecast) => sum + Number(forecast.rainfall_mm || 0), 0) / (forecasts.length || 1);
       const rainfallDev = ((avgForecastRain - normal) / normal) * 100;
-      await updateRiskScore(region, forecasts, rainfallDev);
+      await updateRiskScore(region, forecasts, rainfallDev, enso.phase);
     } catch (error) {
       console.error(`[BMKG] Error processing region ${region.code}:`, error.message);
     }

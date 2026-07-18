@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import cron from 'node-cron';
 
+import { validateEnv } from './env.js';
 import { db } from './db.js';
 import { isRedisEnabled, redis } from './cache.js';
 import supplyRoutes from './routes/supply.js';
@@ -15,6 +16,8 @@ import logisticsRoutes from './routes/logistics.js';
 import forecastRoutes  from './routes/forecast.js';
 import { pollWeatherData } from './services/bmkgService.js';
 import { pollPriceData } from './services/priceService.js';
+
+validateEnv();
 
 const app = express();
 const PORT = process.env.PORT || 3000;

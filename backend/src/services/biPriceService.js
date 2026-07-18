@@ -100,7 +100,7 @@ function normalizeCommodityCode(name) {
   return COMMODITY_NAME_TO_CODE[name] || null;
 }
 
-function parseGridRows(rows, provinceName) {
+function parseGridRows(rows, provinceName, priceLevel = 'consumer') {
   const regionCode = normalizeRegionCode(provinceName);
   if (!regionCode || !Array.isArray(rows)) return [];
 
@@ -125,6 +125,7 @@ function parseGridRows(rows, provinceName) {
         commodity_code: commodityCode,
         price_idr: priceIdr,
         price_source: 'bi',
+        price_level: priceLevel,
         source_detail: provinceName,
       });
     }
@@ -166,11 +167,13 @@ function aggregateRegionalPrices(records) {
 
   for (const record of records) {
     const day = record.time.toISOString().slice(0, 10);
-    const key = `${day}:${record.region_code}:${record.commodity_code}`;
+    const priceLevel = record.price_level || 'consumer';
+    const key = `${day}:${record.region_code}:${record.commodity_code}:${priceLevel}`;
     const existing = grouped.get(key) || {
       time: new Date(`${day}T00:00:00.000Z`),
       region_code: record.region_code,
       commodity_code: record.commodity_code,
+      price_level: priceLevel,
       prices: [],
       sources: [],
     };
@@ -186,6 +189,7 @@ function aggregateRegionalPrices(records) {
     commodity_code: entry.commodity_code,
     price_idr: Math.round(entry.prices.reduce((sum, value) => sum + value, 0) / entry.prices.length),
     price_source: 'bi',
+    price_level: entry.price_level,
     source_detail: `${entry.sources.length} provinces`,
   }));
 }
@@ -245,7 +249,8 @@ export async function fetchBiChartData({
   return response.data;
 }
 
-export async function fetchRegionalBiPriceSeries({ startDate, endDate }) {
+// BI Harga Pangan price_type_id: 1 = Pasar Tradisional (consumer), 4 = Produsen.
+export async function fetchRegionalBiPriceSeries({ startDate, endDate, priceTypeId = 1, priceLevel = 'consumer' }) {
   const provinces = await fetchBiProvinces();
   const allRecords = [];
 
@@ -255,11 +260,16 @@ export async function fetchRegionalBiPriceSeries({ startDate, endDate }) {
       provinceId: province.id,
       startDate,
       endDate,
+      priceTypeId,
     });
-    allRecords.push(...parseGridRows(rows, province.name));
+    allRecords.push(...parseGridRows(rows, province.name, priceLevel));
   }
 
   return aggregateRegionalPrices(allRecords);
+}
+
+export async function fetchRegionalBiProducerPriceSeries({ startDate, endDate }) {
+  return fetchRegionalBiPriceSeries({ startDate, endDate, priceTypeId: 4, priceLevel: 'producer' });
 }
 
 export async function fetchNationalBiChartPriceSeries({ startDate, endDate }) {
