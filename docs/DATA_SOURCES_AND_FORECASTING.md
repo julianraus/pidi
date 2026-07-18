@@ -15,7 +15,7 @@ prototype is classified as one of four states:
 | Weather forecast | real-time capable | BMKG Open Data `https://api.bmkg.go.id/publik/prakiraan-cuaca?adm4=...` | BMKG exposes village-level 3-day forecasts; Kepang AI derives harvest-risk forecasts from it. |
 | Food prices | real-time capable | BI Harga Pangan scraper/API and Bapanas Panel Harga when endpoint access is stable | Bapanas Panel Harga states daily updates by enumerators; main panel may be under maintenance, so API availability must be validated before production. |
 | Macro rupiah/inflation | official-release | BPS and BI releases | These are official reference data, not tick-level market data. |
-| Supply-demand and stock | unavailable | Requires Bapanas/Bulog/Dinas Pangan/warehouse integration | Public real-time stock by warehouse/commodity is not yet connected. |
+| Supply-demand and stock | production_ton: official-release (rice only); demand_ton/stock_ton: unavailable | BPS WebAPI var 2506 "Produksi Padi Menurut Provinsi (Bulanan)", aggregated from 38 provinces to 6 regions. Requires Bapanas/Bulog/Dinas Pangan/warehouse integration for demand/stock. | `supply_demand.production_source` distinguishes `bps` rows from `seed` rows within the same table. Corn (var 2507) is available from BPS but has no matching seed rows to update yet. Public real-time demand/stock by warehouse is not yet connected. |
 | Logistics route ETA/distance | real-time capable | Google Routes API when `GOOGLE_MAPS_API_KEY` is configured | Only valid for road-routable legs. Sea/cargo legs require port and carrier data, so they are not labelled as Google real-time. |
 | Logistics route cost/capacity | forecast / unavailable | Current MVP uses route-table estimates; production requires Bulog/operator/logistics partner integration | Route cost/capacity data is operational partner data and must not be claimed as real-time without a carrier feed. |
 | Resilience score, shock scenario, action plan | forecast | Kepang AI model | These outputs must always be labelled model-derived and validated against operational data. |
@@ -181,10 +181,16 @@ seed-only, fabricated tables) could be connected to a real public source:
   open endpoint. Google Routes API (already integrated) remains the only real-time piece
   (distance/ETA for road legs).
 
-Recommended next step if pursuing this further: register a BPS API key and wire up
-production-side `supply_demand.production_ton` from BPS as a partial real-data source,
-while keeping `demand_ton`, `stock_ton`, and logistics cost/capacity labelled `unavailable`
-until an institutional data-sharing agreement exists.
+**Update 2026-07-19**: the recommended next step above was completed. A BPS API key was
+registered and `backend/src/services/bpsProductionService.js` now pulls real monthly rice
+production (BPS var 2506, "Produksi Padi Menurut Provinsi (Bulanan)") for all 38 provinces,
+aggregated to the 6 pilot regions. `backend/src/scripts/backfillProduction.js` updates
+`production_ton` on existing `supply_demand` rows only (never inserts fabricated
+`supply_ton`/`demand_ton` alongside it) and tags them `production_source = 'bps'` so real
+and seed rows remain distinguishable within the same table. Corn (var 2507) is also wired
+up but currently has no matching seed rows to update since `supply_demand` was only seeded
+for rice. `demand_ton`, `stock_ton`, and logistics cost/capacity remain `unavailable` until
+an institutional data-sharing agreement exists.
 
 ## Public References
 

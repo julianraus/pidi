@@ -175,24 +175,27 @@ eksternal formal belum dilakukan.
 
 ### Current Technical Reality, Data, and Integration (maks. 300 kata)
 
-**Sudah berfungsi (real-time, terverifikasi)**: BI Harga Pangan scraper
-(endpoint `GetGridDataDaerah`, teruji menarik data harga aktual per
-provinsi, diagregasi ke 6 wilayah); BMKG Open Data untuk forecast cuaca 3
-hari per wilayah (6/6 titik adm4 tervalidasi hidup); NOAA Oceanic Nino Index
-untuk fase ENSO (feed publik, di-refresh tiap polling cycle, menggantikan
-asumsi statis sebelumnya). Rilis resmi BPS/BI untuk makro dan inflasi
-digunakan sebagai referensi periodik.
+**Sudah berfungsi (real-time/official-release, terverifikasi)**: BI Harga
+Pangan scraper untuk harga konsumen dan harga produsen (endpoint
+`GetGridDataDaerah`, dua level harga sekaligus, dipakai menghitung margin
+distribusi produsen-konsumen per wilayah-komoditas); BMKG Open Data untuk
+forecast cuaca 3 hari per wilayah (6/6 titik adm4 tervalidasi hidup); NOAA
+Oceanic Nino Index untuk fase ENSO; BPS WebAPI untuk produksi padi bulanan
+per provinsi (var 2506, diagregasi ke 6 wilayah, meng-update `production_ton`
+pada baris `supply_demand` yang sudah ada dengan label `production_source =
+'bps'`, tanpa mengubah `supply_ton`/`demand_ton` yang masih seed). Rilis
+resmi BPS/BI untuk makro dan inflasi dipakai sebagai referensi periodik.
 
 **Masih forecast/simulasi**: Resilience Score, pressure breakdown, dan
 skenario shock adalah output model (rule-based, bukan black-box), bukan data
-mentah. Supply-demand (produksi, stok) masih berbasis seed database karena
-data granular Bapanas/Bulog tidak tersedia secara publik — sudah dicek
-langsung, portal data Bapanas mensyaratkan akses aplikasi internal (S.A.P.A),
-bukan API terbuka.
+mentah. `demand_ton` dan `stock_ton` masih seed karena data granular
+Bapanas/Bulog tidak tersedia secara publik — sudah dicek langsung, portal
+data Bapanas mensyaratkan akses aplikasi internal (S.A.P.A), bukan API
+terbuka. Produksi jagung (BPS var 2507) juga sudah terhubung tapi belum ada
+baris `supply_demand` yang cocok untuk di-update.
 
-**Masih direncanakan**: integrasi produksi BPS (WebAPI tersedia, perlu
-registrasi API key gratis), stok riil via kemitraan Bapanas/Bulog, biaya dan
-kapasitas logistik via mitra carrier/operator pelabuhan.
+**Masih direncanakan**: data demand/stok riil via kemitraan Bapanas/Bulog,
+biaya dan kapasitas logistik via mitra carrier/operator pelabuhan.
 
 Komponen teknis inti: React/Vite frontend, Node.js/Express backend,
 PostgreSQL (Supabase), Redis opsional. Setiap dataset disimpan dengan source
@@ -511,7 +514,7 @@ Raus, Wiennetou Joel, Jati Kusuma, Jonathan Wibowo]`
 | End-to-End Use Case and Feature-to-Pain Mapping | 236 | 300 |
 | Operational Context, Solution Boundary, and Adoption | 145 | 200 |
 | Innovation Level | 43 | 50 |
-| Current Technical Reality, Data, and Integration | 195 | 300 |
+| Current Technical Reality, Data, and Integration | 230 | 300 |
 | MVP Execution and Deployment Plan | 195 | 250 |
 | Algorithm or Rule Quality and Decision Transparency | 241 | 300 |
 | Problem and System Complexity | 154 | 200 |

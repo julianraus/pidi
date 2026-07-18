@@ -27,7 +27,7 @@ router.get('/regions', async (req, res, next) => {
           r.id, r.code, r.name AS region_name, r.island, r.population,
           c.name AS commodity_name, c.unit,
           sd.period_month, sd.supply_ton, sd.demand_ton,
-          sd.stock_ton, sd.production_ton, sd.import_ton, sd.export_ton,
+          sd.stock_ton, sd.production_ton, sd.production_source, sd.import_ton, sd.export_ton,
           ROUND(sd.supply_ton - sd.demand_ton, 2) AS balance_ton,
           ROUND((sd.supply_ton - sd.demand_ton) / NULLIF(sd.demand_ton,0) * 100, 1) AS balance_pct,
           CASE

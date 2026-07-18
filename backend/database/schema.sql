@@ -40,6 +40,7 @@ CREATE TABLE supply_demand (
   demand_ton      DECIMAL(14,2) NOT NULL,
   stock_ton       DECIMAL(14,2) DEFAULT 0,
   production_ton  DECIMAL(14,2) DEFAULT 0,
+  production_source VARCHAR(20) NOT NULL DEFAULT 'seed', -- 'seed' | 'bps'
   import_ton      DECIMAL(14,2) DEFAULT 0,
   export_ton      DECIMAL(14,2) DEFAULT 0,
   created_at      TIMESTAMPTZ DEFAULT NOW(),
