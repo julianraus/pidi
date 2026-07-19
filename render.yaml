@@ -31,7 +31,7 @@ services:
       - key: BMKG_ALERTS_RSS_URL
         value: https://www.bmkg.go.id/alerts/nowcast/id
       - key: BMKG_REGION_ADM4_CODES
-        value: '{"JW":["31.71.03.1001"],"SM":["12.71.01.1001"],"KL":["64.72.01.1001"],"SL":["73.71.01.1001"],"NT":["52.71.05.1001"],"PM":["91.71.01.1001"]}'
+        value: '{"JW":["31.71.03.1001","35.78.01.1001"],"SM":["12.71.01.1001","16.71.01.1001"],"KL":["64.72.01.1001","63.71.01.1001"],"SL":["73.71.01.1001","71.71.10.1002"],"NT":["52.71.05.1001","51.71.01.1001"],"PM":["91.71.01.1001","81.71.01.1006"]}'
       - key: NOAA_ONI_URL
         value: https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt
       - key: BPS_API_URL

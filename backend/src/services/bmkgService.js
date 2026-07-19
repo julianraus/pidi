@@ -11,13 +11,16 @@ const BMKG_FORECAST_API_URL = process.env.BMKG_FORECAST_API_URL || 'https://api.
 const BMKG_ALERTS_RSS_URL = process.env.BMKG_ALERTS_RSS_URL || 'https://www.bmkg.go.id/alerts/nowcast/id';
 const NOAA_ONI_URL = process.env.NOAA_ONI_URL || 'https://www.cpc.ncep.noaa.gov/data/indices/oni.ascii.txt';
 
+// Each region maps to 2 verified adm4 village codes spanning 2 different
+// provinces, so forecasts are averaged across more than a single point
+// for regions that aggregate several provinces (e.g. PM covers 8).
 const DEFAULT_BMKG_ADM4_CODES = {
-  JW: ['31.71.03.1001'],
-  SM: ['12.71.01.1001'],
-  KL: ['64.72.01.1001'],
-  SL: ['73.71.01.1001'],
-  NT: ['52.71.05.1001'],
-  PM: ['91.71.01.1001'],
+  JW: ['31.71.03.1001', '35.78.01.1001'], // DKI Jakarta (Kemayoran) + Jawa Timur (Surabaya)
+  SM: ['12.71.01.1001', '16.71.01.1001'], // Sumatera Utara + Sumatera Selatan (Palembang)
+  KL: ['64.72.01.1001', '63.71.01.1001'], // Kalimantan Timur + Kalimantan Selatan (Banjarmasin)
+  SL: ['73.71.01.1001', '71.71.10.1002'], // Sulawesi Selatan + Sulawesi Utara (Manado)
+  NT: ['52.71.05.1001', '51.71.01.1001'], // Nusa Tenggara Barat (Mataram) + Bali (Denpasar)
+  PM: ['91.71.01.1001', '81.71.01.1006'], // Papua (Jayapura) + Maluku (Ambon)
 };
 
 const ALERT_REGION_BY_PROVINCE = {
