@@ -111,9 +111,14 @@ export default function AiForecast() {
           <h1 className="text-2xl font-medium">Analisis &amp; Prediksi Cerdas</h1>
           <p className="text-sm text-gray-500 mt-0.5">AI menjahit data supply, cuaca, harga, dan logistik menjadi prioritas tindakan</p>
         </div>
-        <button onClick={handleRefresh} disabled={refreshing} className="btn-secondary text-xs">
-          {refreshing ? 'Memperbarui...' : 'Perbarui Analisis'}
-        </button>
+        <div className="flex items-center gap-2">
+          {overview && overview.ai_source !== 'claude' && (
+            <StatusBadge status="forecast" label="Template offline (belum pakai Claude API)" />
+          )}
+          <button onClick={handleRefresh} disabled={refreshing} className="btn-secondary text-xs">
+            {refreshing ? 'Memperbarui...' : 'Perbarui Analisis'}
+          </button>
+        </div>
       </div>
 
       {loadingOverview ? <LoadingSpinner text="AI sedang menganalisis data..." /> : overview && (

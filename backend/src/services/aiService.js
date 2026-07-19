@@ -40,12 +40,12 @@ async function callClaude(systemPrompt, userPrompt) {
   // Parse JSON from response
   try {
     const jsonMatch = text.match(/```json\n?([\s\S]*?)\n?```/) || text.match(/(\{[\s\S]*\})/);
-    if (jsonMatch) return JSON.parse(jsonMatch[1]);
+    if (jsonMatch) return { ...JSON.parse(jsonMatch[1]), ai_source: 'claude' };
   } catch (e) {
     console.warn('[AI] Could not parse JSON from response, returning raw text');
   }
 
-  return { raw: text };
+  return { raw: text, ai_source: 'claude' };
 }
 
 // ─── System Prompts ───────────────────────────────────────────────────────────
@@ -68,7 +68,7 @@ function getOfflineForecastResponse(prompt) {
       national_status: {
         level: 'siaga_2',
         label: 'Siaga 2 — Perlu Perhatian',
-        summary: 'Ketahanan pangan nasional dalam kondisi cukup stabil namun terdapat tekanan di beberapa wilayah akibat anomali cuaca La Niña yang meningkatkan risiko gagal panen di Sulawesi Selatan dan Jawa Tengah.',
+        summary: 'Ketahanan pangan nasional dalam kondisi cukup stabil namun terdapat tekanan di beberapa wilayah akibat curah hujan di bawah normal yang meningkatkan risiko gagal panen. Lihat halaman Cuaca & Risiko Panen untuk fase ENSO terkini dan skor risiko per wilayah berbasis data live BMKG/NOAA.',
       },
       forecast_30_days: {
         supply_trend: 'menurun_moderat',
@@ -102,6 +102,7 @@ function getOfflineForecastResponse(prompt) {
         { priority: 5, action: 'Aktifkan kontrak siaga impor 200.000 ton beras dari Vietnam sebagai cadangan', category: 'impor', impact: 'sedang' },
       ],
       generated_at: new Date().toISOString(),
+      ai_source: 'offline_template',
     };
   }
 
@@ -121,6 +122,7 @@ function getOfflineForecastResponse(prompt) {
         'Pertimbangkan penggunaan kapal milik PELNI untuk rute Papua guna mendapat subsidi BBM dan mengurangi biaya 8–12%.',
       ],
       generated_at: new Date().toISOString(),
+      ai_source: 'offline_template',
     };
   }
 
@@ -129,6 +131,7 @@ function getOfflineForecastResponse(prompt) {
     confidence: 75,
     sources: ['Data BPS/BI 2026', 'Prakiraan BMKG', 'Stok dan rute logistik regional'],
     generated_at: new Date().toISOString(),
+    ai_source: 'offline_template',
   };
 }
 
