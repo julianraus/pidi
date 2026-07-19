@@ -60,6 +60,30 @@ const BI_CHART_CONFIGS = [
   { comcat_id: '1', province_id: '' },
 ];
 
+// BI Harga Pangan is scraped from an internal website endpoint, not a
+// documented public API - it has no uptime guarantee and occasionally
+// times out or drops a request under load. Retry transient failures
+// (network errors, 5xx, 429) with backoff; don't retry 4xx, since that
+// means the request itself is wrong and retrying won't help.
+async function withRetry(fn, { retries = 3, baseDelayMs = 800, label = 'BI request' } = {}) {
+  let lastError;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      const status = error.response?.status;
+      const isClientError = status >= 400 && status < 500;
+      if (isClientError || attempt === retries) throw error;
+
+      const delay = baseDelayMs * 2 ** (attempt - 1);
+      console.warn(`[BI] ${label} failed (attempt ${attempt}/${retries}): ${error.message}. Retrying in ${delay}ms...`);
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+  throw lastError;
+}
+
 function createBiClient() {
   return axios.create({
     baseURL: BI_BASE_URL,
@@ -195,9 +219,11 @@ function aggregateRegionalPrices(records) {
 }
 
 export async function fetchBiProvinces() {
-  const client = createBiClient();
-  const response = await client.get('/GetRefProvince');
-  return Array.isArray(response.data?.data) ? response.data.data : [];
+  return withRetry(async () => {
+    const client = createBiClient();
+    const response = await client.get('/GetRefProvince');
+    return Array.isArray(response.data?.data) ? response.data.data : [];
+  }, { label: 'GetRefProvince' });
 }
 
 export async function fetchBiGridData({
@@ -207,21 +233,23 @@ export async function fetchBiGridData({
   priceTypeId = 1,
   reportType = 1,
 }) {
-  const client = createBiClient();
-  const response = await client.get('/GetGridDataDaerah', {
-    params: {
-      price_type_id: priceTypeId,
-      comcat_id: '',
-      province_id: provinceId,
-      regency_id: '',
-      market_id: '',
-      tipe_laporan: reportType,
-      start_date: toIsoDate(startDate),
-      end_date: toIsoDate(endDate),
-    },
-  });
+  return withRetry(async () => {
+    const client = createBiClient();
+    const response = await client.get('/GetGridDataDaerah', {
+      params: {
+        price_type_id: priceTypeId,
+        comcat_id: '',
+        province_id: provinceId,
+        regency_id: '',
+        market_id: '',
+        tipe_laporan: reportType,
+        start_date: toIsoDate(startDate),
+        end_date: toIsoDate(endDate),
+      },
+    });
 
-  return Array.isArray(response.data?.data) ? response.data.data : [];
+    return Array.isArray(response.data?.data) ? response.data.data : [];
+  }, { label: `GetGridDataDaerah (province ${provinceId})` });
 }
 
 export async function fetchBiChartData({
@@ -232,21 +260,23 @@ export async function fetchBiChartData({
   comcatId = '',
   provinceId = '',
 }) {
-  const client = createBiClient();
-  const response = await client.get('/GetChartDaerah', {
-    params: {
-      price_type_id: priceTypeId,
-      comcat_id: comcatId,
-      province_id: provinceId,
-      regency_id: '',
-      market_id: '',
-      tipe_laporan: reportType,
-      start_date: toIsoDate(startDate),
-      end_date: toIsoDate(endDate),
-    },
-  });
+  return withRetry(async () => {
+    const client = createBiClient();
+    const response = await client.get('/GetChartDaerah', {
+      params: {
+        price_type_id: priceTypeId,
+        comcat_id: comcatId,
+        province_id: provinceId,
+        regency_id: '',
+        market_id: '',
+        tipe_laporan: reportType,
+        start_date: toIsoDate(startDate),
+        end_date: toIsoDate(endDate),
+      },
+    });
 
-  return response.data;
+    return response.data;
+  }, { label: 'GetChartDaerah' });
 }
 
 // BI Harga Pangan price_type_id: 1 = Pasar Tradisional (consumer), 4 = Produsen.
@@ -256,13 +286,19 @@ export async function fetchRegionalBiPriceSeries({ startDate, endDate, priceType
 
   for (const province of provinces) {
     if (!province?.id || !province?.name) continue;
-    const rows = await fetchBiGridData({
-      provinceId: province.id,
-      startDate,
-      endDate,
-      priceTypeId,
-    });
-    allRecords.push(...parseGridRows(rows, province.name, priceLevel));
+    try {
+      const rows = await fetchBiGridData({
+        provinceId: province.id,
+        startDate,
+        endDate,
+        priceTypeId,
+      });
+      allRecords.push(...parseGridRows(rows, province.name, priceLevel));
+    } catch (error) {
+      // One province failing after retries shouldn't drop the other 37 -
+      // skip it and let honest partial data through instead of aborting.
+      console.warn(`[BI] Skipping province ${province.name} after retries exhausted: ${error.message}`);
+    }
   }
 
   return aggregateRegionalPrices(allRecords);
