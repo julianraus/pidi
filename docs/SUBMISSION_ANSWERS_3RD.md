@@ -216,12 +216,12 @@ transparan, rekomendasi rute dengan Google Routes API opsional. Fitur yang
 belum dimasukkan: role-based access, notifikasi push, export decision brief
 ke PDF, dan integrasi stok/logistik mitra.
 
-Milestone berikutnya: (1) 0-2 minggu - registrasi BPS API key untuk data
-produksi, deploy publik yang stabil (Render backend + Vercel frontend sesuai
-`docs/DEPLOYMENT.md`), PIC: Backend Engineer; (2) 2-6 minggu - validasi
-lapangan dengan 5-10 wawancara TPID/dinas pangan, PIC: Product Lead;
-(3) 1-3 bulan - eksplorasi kemitraan data Bapanas/Bulog untuk stok riil,
-PIC: Product Lead + Data Engineer.
+Milestone yang sudah selesai: registrasi BPS API key untuk data produksi,
+dan deploy publik (Render backend + Vercel frontend) sudah live dan
+terverifikasi menampilkan data real. Milestone berikutnya: (1) 0-2 minggu -
+validasi lapangan dengan 5-10 wawancara TPID/dinas pangan, PIC: Product
+Lead; (2) 1-3 bulan - eksplorasi kemitraan data Bapanas/Bulog untuk stok
+riil, PIC: Product Lead + Data Engineer.
 
 Risiko utama: (1) teknis - ketergantungan pada stabilitas endpoint BI/BMKG
 yang tidak resmi didokumentasikan sebagai API publik, mitigasi dengan
@@ -485,9 +485,10 @@ terbaru, dan test evidence (scraper BI 180 record real, BMKG 6/6 wilayah,
 NOAA ENSO live).
 
 **LINK ATTACHMENT** (1 link, harus dapat diakses publik tanpa izin
-tambahan): `[ISI - pilih salah satu: deploy publik (Render/Vercel per
-docs/DEPLOYMENT.md) ATAU repository GitHub publik. Deploy publik lebih kuat
-kalau sempat distabilkan sebelum deadline]`
+tambahan): `https://pidi-seven.vercel.app` — deploy publik live, backend di
+Render (`https://kepang-ai-api.onrender.com`) terhubung ke database
+Supabase dengan data real (BI Harga Pangan, BMKG, NOAA, BPS). Repo:
+`https://github.com/julianraus/pidi`.
 
 **CV ATTACHMENT**: `[ISI link LinkedIn/CV Google Drive tiap anggota - Julian
 Raus, Wiennetou Joel, Jati Kusuma, Jonathan Wibowo]`

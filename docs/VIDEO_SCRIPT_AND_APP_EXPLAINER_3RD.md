@@ -124,11 +124,19 @@ per detik sesuai rekomendasi guideline sendiri.
 
 - [ ] Konfirmasi Team ID final di form pidi.id (draft pakai P0684, cek ulang)
 - [ ] Rekam video sesuai skrip di atas, upload YouTube publik
-- [ ] Isi Link Attachment — pilih deploy publik (Render+Vercel) atau
-      repo GitHub (`github.com/julianraus/pidi`, sudah live)
+- [x] Deploy publik live — Frontend `https://pidi-seven.vercel.app`,
+      Backend `https://kepang-ai-api.onrender.com` (terverifikasi
+      menampilkan data real)
 - [ ] Kumpulkan link LinkedIn/CV 4 anggota tim
 - [ ] Copy-paste jawaban dari `docs/SUBMISSION_ANSWERS_3RD.md` ke form,
       sesuaikan bagian `[CEK]`
 - [ ] Upload `submission_attachments/P0684 - Kepang AI Lampiran Submission Tahap 3.pdf`
       sebagai File Attachment
 - [ ] Submit sebelum deadline
+
+## Update video script — pakai URL live
+
+Untuk bagian demo di video, buka langsung `https://pidi-seven.vercel.app`
+di browser (bukan localhost) supaya juri bisa lihat ini benar-benar
+ter-deploy, bukan cuma jalan di laptop kamu. Sebutkan di narasi kalau mau:
+"aplikasi ini sudah live di internet, bukan cuma prototype lokal."
