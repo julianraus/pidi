@@ -53,6 +53,11 @@ baru terjadi setelah harga sudah naik duluan, bukan sebelum.
 - **Produksi padi**: live dari BPS (var 2506), per provinsi, diagregasi ke
   6 wilayah — angka production_ton di Supply & Demand sekarang data
   pemerintah asli untuk beras.
+- **Konteks makro selalu terkini**: inflasi 3,34% yoy dan BI-Rate 5,75%
+  (rilis Juni 2026, per 19 Juli 2026) — BI menaikkan BI-Rate **tiga kali
+  berturut-turut** sejak Mei 2026 (+100bps total) khusus untuk menahan
+  pelemahan rupiah. Ini bukti nyata dan terbaru untuk narasi inti Kepang AI
+  soal tekanan imported inflation — sebutkan di video, ini poin yang kuat.
 
 ### Apa yang MODEL/FORECAST (transparan, rule-based, bukan black-box — ini kekuatan, bukan kelemahan)
 
@@ -84,7 +89,7 @@ per detik sesuai rekomendasi guideline sendiri.
 | Waktu | Narasi (draft, sesuaikan gaya bicara kamu) | Visual |
 |---|---|---|
 | **0–5 detik** | "Kami J4, dan ini Kepang AI." | Logo/judul: "Kepang AI — Decision Intelligence untuk Resiliensi Ketahanan Pangan Daerah" |
-| **5–15 detik** | "TPID dan dinas pangan sering telat mengambil keputusan karena data harga, cuaca, stok, dan rupiah tersebar di sistem berbeda — intervensi baru datang setelah harga sudah naik." | Cuplikan Dashboard, angka inflasi/volatile food dari Evidence Room |
+| **5–15 detik** | "Bank Indonesia sudah menaikkan suku bunga tiga kali berturut-turut demi menahan rupiah. TPID dan dinas pangan butuh cara cepat menghubungkan tekanan ini ke keputusan stok pangan — bukan data yang tersebar di sistem berbeda." | Cuplikan Dashboard/Evidence Room: fact card BI-Rate 5,75% dan inflasi 3,34% |
 | **15–35 detik** | "Kepang AI menyatukan semuanya jadi satu Resilience Score dan rekomendasi tindakan. Di sini, harga bawang merah — data produsen dan konsumen, live dari Bank Indonesia — menunjukkan margin distribusi 52 persen di Kalimantan. Sistem langsung merekomendasikan wilayah mana yang perlu diprioritaskan." | Screen record: Resilience Room → pressure breakdown → Supply & Demand → margin/harga |
 | **35–45 detik** | "Skornya dihitung dari formula yang bisa ditelusuri — bukan black-box — dari data cuaca BMKG, harga BI, produksi BPS, dan indeks iklim NOAA yang semuanya live." | Cuplikan Weather Risk / data lineage badge |
 | **45–55 detik** | "Hasilnya: waktu identifikasi wilayah prioritas turun dari berjam-jam jadi di bawah 3 menit — dan berpotensi menjadi produk SaaS institusional dengan model lisensi tahunan ke pemda dan Bapanas." | Cuplikan Evidence Room tab Business Case |
