@@ -6,31 +6,31 @@ import { generateForecast, generateAlert, generateRedistributionAnalysis } from 
 const router = Router();
 
 const MACRO_CONTEXT = {
-  as_of: '2026-06-03',
-  usd_idr: 17700,
-  usd_idr_change_ptp_pct: 2.2,
-  bi_rate_pct: 5.25,
-  headline_inflation_yoy_pct: 3.08,
-  headline_inflation_mtm_pct: 0.28,
-  volatile_food_yoy_pct: 6.24,
-  volatile_food_mtm_pct: 0.22,
+  as_of: '2026-07-17',
+  usd_idr: 17944,
+  usd_idr_change_ptp_pct: 1.4,
+  bi_rate_pct: 5.75,
+  headline_inflation_yoy_pct: 3.34,
+  headline_inflation_mtm_pct: 0.44,
+  volatile_food_yoy_pct: 5.58,
+  volatile_food_mtm_pct: 0.14,
   food_group_mtm_pct: 0.39,
   food_group_mtm_contribution_pct: 0.12,
   import_growth_yoy_pct: 14.44,
   import_value_jan_feb_usd_billion: 42.09,
-  key_food_drivers: ['Cabai merah', 'Minyak goreng', 'Bawang merah', 'Tomat', 'Beras'],
+  key_food_drivers: ['Cabai merah', 'Bawang merah', 'Bawang putih', 'Beras', 'Ayam ras'],
   sources: [
     {
-      label: 'BPS Inflasi Mei 2026',
-      url: 'https://www.bps.go.id/id/pressrelease/2026/06/02/2579/inflasi-year-on-year--y-on-y--pada-mei-2026-sebesar-3-08-persen-.html',
+      label: 'BPS Inflasi Juni 2026',
+      url: 'https://www.bps.go.id/en/pressrelease/2026/07/01/2590/inflasi-year-on-year--y-on-y--pada-juni-2026-sebesar-3-34-persen-.html',
     },
     {
-      label: 'BI RDG Mei 2026',
-      url: 'https://www.bi.go.id/id/publikasi/ruang-media/news-release/Pages/sp_2810726.aspx',
+      label: 'BI RDG 17-18 Juni 2026 - BI-Rate naik ke 5,75%',
+      url: 'https://www.bi.go.id/id/publikasi/ruang-media/news-release/Pages/sp_2812626.aspx',
     },
     {
-      label: 'Antara - BI Inflasi Mei 2026',
-      url: 'https://www.antaranews.com/berita/5591537/bi-inflasi-mei-2026-terjaga-berkat-kebijakan-dan-sinergi',
+      label: 'Kurs JISDOR BI, 17 Juli 2026',
+      url: 'https://databoks.katadata.co.id/pasar/statistik/6a5a3cf30e232/rupiah-bi-jisdor-menguat-menjadi-17944-per-dolar-as-jumat-17-juli-2026',
     },
     {
       label: 'BPS Ekspor-Impor Februari 2026',

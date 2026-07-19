@@ -36,9 +36,9 @@ const DASHBOARD_FALLBACK = {
   ],
   resilience: {
     macro: {
-      usd_idr: 17700,
-      usd_idr_change_ptp_pct: 2.2,
-      volatile_food_yoy_pct: 6.24,
+      usd_idr: 17944,
+      usd_idr_change_ptp_pct: 1.4,
+      volatile_food_yoy_pct: 5.58,
     },
     summary: {
       resilience_score: 63,
@@ -223,7 +223,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <MetricCard label="Resilience Score" value={resilienceScore ?? foodSecurityIndex} sub="Skala 0-100, makin tinggi makin tahan shock" valueClass={+(resilienceScore ?? foodSecurityIndex) >= 65 ? 'text-green-600' : 'text-yellow-600'} />
-        <MetricCard label="USD/IDR Risk" value={macro.usd_idr ? `Rp ${Number(macro.usd_idr).toLocaleString('id-ID')}` : '-'} sub={macro.usd_idr_change_ptp_pct ? `${macro.usd_idr_change_ptp_pct}% ptp vs akhir April` : 'Tekanan imported inflation'} valueClass="text-blue-600" />
+        <MetricCard label="USD/IDR Risk" value={macro.usd_idr ? `Rp ${Number(macro.usd_idr).toLocaleString('id-ID')}` : '-'} sub={macro.usd_idr_change_ptp_pct ? `${macro.usd_idr_change_ptp_pct}% ptp vs 19 Mei 2026` : 'Tekanan imported inflation'} valueClass="text-blue-600" />
         <MetricCard label="Volatile Food YoY" value={macro.volatile_food_yoy_pct ? `${macro.volatile_food_yoy_pct}%` : (topCommodity ? fmtPct(topCommodity.change_yoy_pct) : '-')} sub="Sinyal tekanan pangan bergejolak" valueClass="text-red-500" />
         <MetricCard label="Wilayah Defisit" value={balance ? `${balance.deficit_regions} / 6` : '-'} sub="Wilayah perlu intervensi" valueClass={balance?.deficit_regions > 0 ? 'text-yellow-600' : 'text-green-600'} />
       </div>

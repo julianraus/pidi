@@ -30,10 +30,10 @@ const RESILIENCE_FALLBACK = {
     forecast_rule: 'Score, exposure, skenario, dan action plan adalah output model yang perlu divalidasi dengan data operasional.',
   },
   macro: {
-    as_of: '2026-06-03',
-    usd_idr: 17700,
-    usd_idr_change_ptp_pct: 2.2,
-    volatile_food_yoy_pct: 6.24,
+    as_of: '2026-07-17',
+    usd_idr: 17944,
+    usd_idr_change_ptp_pct: 1.4,
+    volatile_food_yoy_pct: 5.58,
   },
   summary: {
     resilience_score: 63,
@@ -45,8 +45,8 @@ const RESILIENCE_FALLBACK = {
   pressure_breakdown: [
     { key: 'supply', label: 'Supply-demand gap', value: 42, evidence: '2 wilayah defisit' },
     { key: 'climate', label: 'Risiko cuaca dan panen', value: 51, evidence: 'Risiko maksimum 66%' },
-    { key: 'price', label: 'Volatile food', value: 35, evidence: 'VF 6.24% yoy' },
-    { key: 'macro', label: 'Rupiah dan imported inflation', value: 51, evidence: 'USD/IDR Rp17.700' },
+    { key: 'price', label: 'Volatile food', value: 35, evidence: 'VF 5.58% yoy' },
+    { key: 'macro', label: 'Rupiah dan imported inflation', value: 51, evidence: 'USD/IDR Rp17.944' },
     { key: 'logistics', label: 'Biaya distribusi', value: 37, evidence: 'Rata-rata Rp271.667/ton' },
   ],
   import_exposure: [
@@ -126,7 +126,7 @@ const RESILIENCE_FALLBACK = {
       dataset: 'Makro rupiah dan inflasi',
       status: 'official-release',
       source: 'BPS/BI public release',
-      freshness: '2026-06-03',
+      freshness: '2026-07-17',
       method: 'official release reference',
       expected_data: 'BI rate, USD/IDR, inflasi yoy/mtm, volatile food, nilai impor, tanggal rilis.',
     },
@@ -207,7 +207,7 @@ export default function Resilience() {
           <StatusBadge status={summary.resilience_level} label={LEVEL_LABELS[summary.resilience_level] || 'Waspada'} />
           <span className="badge-blue">Pilot 6 wilayah agregasi</span>
           {usingFallback && <span className="badge-yellow">Forecast mode</span>}
-          <span className="badge-gray">Update makro {macro.as_of || '2026-06-03'}</span>
+          <span className="badge-gray">Update makro {macro.as_of || '2026-07-17'}</span>
         </div>
       </div>
 
@@ -235,7 +235,7 @@ export default function Resilience() {
         <MetricCard
           label="USD/IDR"
           value={macro.usd_idr ? formatIdr(macro.usd_idr) : '-'}
-          sub={`${macro.usd_idr_change_ptp_pct || 0}% ptp vs akhir April`}
+          sub={`${macro.usd_idr_change_ptp_pct || 0}% ptp vs 19 Mei 2026`}
           valueClass="text-blue-600"
         />
         <MetricCard

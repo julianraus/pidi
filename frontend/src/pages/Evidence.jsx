@@ -10,25 +10,32 @@ const TABS = [
 
 const SOURCE_FACTS = [
   {
-    label: 'Inflasi Mei 2026',
-    value: '3,08% yoy',
-    sub: 'BPS official release',
+    label: 'Inflasi Juni 2026',
+    value: '3,34% yoy',
+    sub: 'BPS official release, naik dari 3,08% (Mei)',
     status: 'official-release',
-    href: 'https://www.bps.go.id/id/pressrelease/2026/06/02/2579/inflasi-year-on-year--y-on-y--pada-mei-2026-sebesar-3-08-persen-.html',
+    href: 'https://www.bps.go.id/en/pressrelease/2026/07/01/2590/inflasi-year-on-year--y-on-y--pada-juni-2026-sebesar-3-34-persen-.html',
   },
   {
     label: 'Volatile Food',
-    value: '6,24% yoy',
-    sub: 'Tekanan komoditas pangan strategis',
+    value: '5,58% yoy',
+    sub: 'Tetap jadi ancaman utama inflasi pangan',
     status: 'official-release',
-    href: 'https://www.bloombergtechnoz.com/detail-news/110660/inflasi-mei-2026-tembus-3-08-kemenkeu-janji-jaga-akses-pangan',
+    href: 'https://www.bps.go.id/en/pressrelease/2026/07/01/2590/inflasi-year-on-year--y-on-y--pada-juni-2026-sebesar-3-34-persen-.html',
   },
   {
     label: 'USD/IDR Risk',
-    value: 'Rp17.700',
-    sub: 'BI RDG Mei 2026',
+    value: 'Rp17.944',
+    sub: 'JISDOR 17 Juli 2026',
     status: 'official-release',
-    href: 'https://www.bi.go.id/id/publikasi/ruang-media/news-release/Pages/sp_2810726.aspx',
+    href: 'https://databoks.katadata.co.id/pasar/statistik/6a5a3cf30e232/rupiah-bi-jisdor-menguat-menjadi-17944-per-dolar-as-jumat-17-juli-2026',
+  },
+  {
+    label: 'BI-Rate',
+    value: '5,75%',
+    sub: '3x kenaikan berturut-turut sejak Mei, +100bps',
+    status: 'official-release',
+    href: 'https://www.bi.go.id/id/publikasi/ruang-media/news-release/Pages/sp_2812626.aspx',
   },
   {
     label: 'BMKG Forecast',
@@ -42,15 +49,15 @@ const SOURCE_FACTS = [
 const DEMAND_SIGNALS = [
   {
     title: 'Harga pangan masih menekan inflasi',
-    proof: 'Inflasi Mei 2026 sebesar 3,08% yoy dan volatile food 6,24% yoy.',
-    source: 'BPS, BI, Bloomberg Technoz',
+    proof: 'Inflasi Juni 2026 naik menjadi 3,34% yoy (dari 3,08% Mei); volatile food tetap tinggi di 5,58% yoy.',
+    source: 'BPS',
     pain: 'Tim kebijakan perlu tahu komoditas dan wilayah mana yang harus diprioritaskan sebelum harga bergerak lebih jauh.',
     feature: 'Food inflation monitor, anomaly signal, action card, dan KPI intervensi.',
     strength: 86,
   },
   {
     title: 'Rupiah melemah memperbesar imported inflation',
-    proof: 'BI mencatat rupiah Rp17.700/USD pada 19 Mei 2026 dan BI-Rate 5,25%.',
+    proof: 'BI menaikkan BI-Rate 3x berturut-turut sejak Mei 2026 menjadi 5,75% (+100bps) untuk menahan pelemahan rupiah; kurs JISDOR Rp17.944 pada 17 Juli 2026.',
     source: 'Bank Indonesia',
     pain: 'Kurs menekan komoditas impor, energi, pakan, dan biaya logistik, tetapi dampaknya sering tidak masuk ke keputusan stok.',
     feature: 'Scenario planning kurs, imported inflation exposure, dan resilience score.',
