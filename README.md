@@ -1,5 +1,7 @@
 # Kepang AI - Platform Resiliensi Ketahanan Pangan
 
+**Live demo**: https://pidi-seven.vercel.app (backend health check: https://kepang-ai-api.onrender.com/api/health)
+
 Kepang AI adalah prototype decision intelligence untuk membantu TPID, Bapanas,
 Bulog, BI regional, dan pemerintah daerah mengambil keputusan pangan yang lebih
 cepat dan resilient. Fokusnya bukan hanya memantau harga, tetapi menghubungkan

@@ -10,7 +10,9 @@ submit (terutama Team ID dan nama anggota).
 
 ## TEAM IDENTITY
 
-**TEAM ID**: P0684 `[CEK ulang sesuai akun pendaftaran]`
+**TEAM ID**: P0684 (konsisten dengan nama file lampiran submission
+sebelumnya dan `docs/GUIDEBOOK_ALIGNMENT_CHECKLIST.md`; tetap cek sekali
+lagi terhadap akun pendaftaran resmi di pidi.id sebelum submit)
 
 **TEAM NAME**: J4
 
@@ -516,7 +518,7 @@ Raus, Wiennetou Joel, Jati Kusuma, Jonathan Wibowo]`
 | Operational Context, Solution Boundary, and Adoption | 145 | 200 |
 | Innovation Level | 43 | 50 |
 | Current Technical Reality, Data, and Integration | 230 | 300 |
-| MVP Execution and Deployment Plan | 195 | 250 |
+| MVP Execution and Deployment Plan | 196 | 250 |
 | Algorithm or Rule Quality and Decision Transparency | 241 | 300 |
 | Problem and System Complexity | 154 | 200 |
 | Processing Pipeline and Engineering Depth | 185 | 250 |

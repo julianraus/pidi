@@ -82,7 +82,8 @@ def build_pdf():
             ["ID Tim", "P0684"],
             ["Nama Tim", "J4"],
             ["Judul Proposal", "Kepang AI: Decision Intelligence untuk Resiliensi Ketahanan Pangan Daerah"],
-            ["Status Prototype", "Functional prototype end-to-end: backend API, database Supabase, tiga integrasi data eksternal real-time terverifikasi (BI Harga Pangan, BMKG, NOAA ENSO), forecasting, dan rekomendasi logistik."],
+            ["Status Prototype", "Live deployment end-to-end: backend API (Render), frontend (Vercel), database Supabase, empat integrasi data eksternal real-time terverifikasi (BI Harga Pangan konsumen+produsen, BMKG, NOAA ENSO, BPS produksi padi), forecasting, dan rekomendasi logistik."],
+            ["Link Demo Live", "Frontend: https://pidi-seven.vercel.app  |  Backend: https://kepang-ai-api.onrender.com/api/health"],
             ["Nama File", "P0684 - Kepang AI Lampiran Submission Tahap 3.pdf"],
         ],
         [1.35 * inch, 5.3 * inch],
@@ -102,6 +103,9 @@ def build_pdf():
             ["Perbaikan bug data-provenance", "Harga sintetis sempat tersimpan dengan label sumber resmi 'bps'; diperbaiki agar label mengikuti sumber sebenarnya", "Menjaga kepatuhan terhadap kebijakan data lineage milik Kepang AI sendiri"],
             ["Perbaikan konsistensi fallback frontend", "Badge 'Forecast/offline mode' sebelumnya bisa tidak muncul walau sebagian data memakai fallback; kini konsisten di semua field", "Pengguna tidak salah mengira data forecast sebagai data real-time"],
             ["Validasi environment variable saat startup", "Backend kini gagal jelas saat boot bila konfigurasi database tidak valid, alih-alih gagal diam-diam", "Masalah konfigurasi (mis. Supabase project ter-pause) terdeteksi lebih awal"],
+            ["Integrasi harga produsen BI (price_type_id 4)", "Diuji langsung: harga produsen live berdampingan dengan harga konsumen yang sudah ada", "Margin distribusi produsen-konsumen per wilayah-komoditas jadi sinyal baru (cth. Bawang Merah Kalimantan: margin 52,7%)"],
+            ["Integrasi produksi padi BPS (var 2506)", "Diuji langsung: 36 baris supply_demand di-update dengan produksi riil per wilayah, ditandai production_source='bps'", "production_ton tidak lagi 100% seed untuk komoditas beras"],
+            ["Deploy publik end-to-end + QA live", "Backend (Render) dan frontend (Vercel) live; ditemukan dan diperbaiki 1 bug lagi saat QA: teks AI Forecasting offline masih menyebut 'La Nina', bertentangan dengan data ENSO live", "Prototype dapat diakses publik; badge 'Template offline' ditambahkan agar respons AI kalengan tidak terlihat seperti analisis live"],
         ],
         [1.85 * inch, 2.55 * inch, 2.25 * inch],
     ))
@@ -219,16 +223,20 @@ def build_pdf():
             ["Backend startup dengan validasi env", "Lolos", "Server boot bersih, warning konfigurasi tampil jelas untuk key yang belum diisi"],
             ["Frontend production build", "Lolos", "Vite build selesai setelah pembersihan dead code, tanpa broken import"],
             ["Koneksi database Supabase", "Sempat gagal - project ter-pause, kini di-restore", "Insiden operasional, bukan bug kode; tercatat sebagai risiko pada bagian 9"],
+            ["Deploy publik (Render + Vercel) - health check", "Lolos", "Backend live di kepang-ai-api.onrender.com, frontend live di pidi-seven.vercel.app, database ok"],
+            ["QA manual di seluruh 8 halaman + 4 sub-tab aplikasi live", "Lolos setelah 1 perbaikan", "Ditemukan teks AI Forecasting offline yang bertentangan dengan data ENSO live ('La Nina' vs 'El Nino' aktual) - diperbaiki dan diverifikasi ulang live"],
+            ["Integrasi produksi BPS (var 2506) - live fetch", "Lolos", "36 baris supply_demand ter-update dengan data produksi padi riil per wilayah"],
         ],
         [2.35 * inch, 1.35 * inch, 2.95 * inch],
     ))
     story.append(h1("9. Open Gaps and Next Validation (Dinyatakan Jujur)"))
     story.append(bullets([
         "Evidence of demand masih berbasis data sekunder resmi (BPS/BI/Bapanas); 5-10 wawancara terstruktur dengan TPID/dinas pangan/Bulog belum sempat dilakukan pada submission ini dan menjadi prioritas validasi berikutnya.",
-        "Usability testing dengan pengguna eksternal belum formal; pengujian pada tahap ini bersifat verifikasi teknis (API, build, integrasi data live).",
+        "Usability testing dengan pengguna eksternal belum formal; pengujian pada tahap ini bersifat verifikasi teknis dan QA manual internal (API, build, integrasi data live, seluruh halaman aplikasi live).",
         "Supply-demand, stok, biaya, dan kapasitas logistik tetap berlabel forecast/unavailable karena data granular Bapanas/Bulog/mitra logistik belum tersedia secara publik - sudah dicek langsung, portal Bapanas memerlukan akses aplikasi internal (S.A.P.A), bukan API terbuka.",
-        "Integrasi data produksi BPS teridentifikasi jalurnya (WebAPI tersedia) tapi belum dieksekusi - perlu registrasi API key.",
-        "Hosting database sempat mengalami gangguan (project Supabase ter-pause karena idle) selama pengembangan; database kini sudah di-restore. Rencana mitigasi: monitoring health-check rutin agar insiden serupa terdeteksi lebih awal.",
+        "Produksi jagung (BPS var 2507) sudah terhubung di kode tapi belum ada baris supply_demand yang cocok untuk di-update, karena tabel itu hanya di-seed untuk beras.",
+        "AI Forecasting masih memakai template offline berlabel jelas ('Template offline') karena ANTHROPIC_API_KEY belum diisi; bukan output model live.",
+        "Hosting backend gratis (Render free tier) berisiko idle/cold-start; dimitigasi dengan cron job keep-alive yang melakukan health check setiap 10 menit pada akun Render yang sama.",
     ]))
 
     doc.build(story, onFirstPage=page_footer, onLaterPages=page_footer)

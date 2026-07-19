@@ -13,3 +13,6 @@ npm-debug.log*
 # Python
 __pycache__/
 *.pyc
+
+.vercel
+.env*
