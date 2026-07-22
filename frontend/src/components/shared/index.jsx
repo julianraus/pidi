@@ -1,3 +1,79 @@
+import { useEffect, useRef, useState } from 'react';
+
+// CountUp - angka naik dengan easing saat nilai berubah, membuat data terasa hidup
+export function CountUp({ value, duration = 900, decimals = 0, prefix = '', suffix = '' }) {
+  const target = Number(value);
+  const [display, setDisplay] = useState(Number.isFinite(target) ? 0 : null);
+  const prev = useRef(0);
+
+  useEffect(() => {
+    if (!Number.isFinite(target)) return undefined;
+    // rAF tidak jalan di tab yang hidden - langsung set nilai akhir agar
+    // angka tidak tertahan di 0 saat halaman dibuka di background.
+    if (typeof document !== 'undefined' && document.hidden) {
+      prev.current = target;
+      setDisplay(target);
+      return undefined;
+    }
+    const start = prev.current;
+    const t0 = performance.now();
+    let raf;
+    const tick = (t) => {
+      const p = Math.min(1, (t - t0) / duration);
+      const eased = 1 - (1 - p) ** 3;
+      setDisplay(start + (target - start) * eased);
+      if (p < 1) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        prev.current = target;
+      }
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+
+  if (!Number.isFinite(target)) return <>{value ?? '-'}</>;
+  return (
+    <>
+      {prefix}
+      {Number(display).toLocaleString('id-ID', { maximumFractionDigits: decimals, minimumFractionDigits: decimals })}
+      {suffix}
+    </>
+  );
+}
+
+// ScoreRing - gauge melingkar untuk skor 0-100 di hero panel
+export function ScoreRing({ score, label = 'Resilience Score', sublabel }) {
+  const value = Math.max(0, Math.min(100, Number(score) || 0));
+  const radius = 56;
+  const circumference = 2 * Math.PI * radius;
+  const tone = value >= 65 ? '#34d399' : value >= 52 ? '#fbbf24' : '#f87171';
+
+  return (
+    <div className="flex flex-col items-center shrink-0">
+      <div className="relative w-40 h-40">
+        <svg viewBox="0 0 140 140" className="w-full h-full -rotate-90">
+          <circle cx="70" cy="70" r={radius} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="10" />
+          <circle
+            cx="70" cy="70" r={radius} fill="none"
+            stroke={tone} strokeWidth="10" strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={circumference * (1 - value / 100)}
+            style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.4s ease' }}
+          />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <p className="font-display text-4xl font-semibold text-white leading-none">
+            <CountUp value={value} duration={1200} />
+          </p>
+          <p className="text-[10px] uppercase tracking-widest text-emerald-200/60 mt-1.5">{label}</p>
+        </div>
+      </div>
+      {sublabel && <p className="text-xs text-emerald-100/60 mt-1 text-center max-w-[180px]">{sublabel}</p>}
+    </div>
+  );
+}
+
 // MetricCard
 export function MetricCard({ label, value, sub, valueClass = '' }) {
   return (
@@ -111,7 +187,10 @@ export function ProgressBar({ value, max = 100, color = 'bg-green-500' }) {
   const pct = Math.min(100, Math.max(0, (value / max) * 100));
   return (
     <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-      <div className={`h-1.5 rounded-full ${color}`} style={{ width: `${pct}%` }} />
+      <div
+        className={`h-1.5 rounded-full ${color}`}
+        style={{ width: `${pct}%`, transition: 'width 1s cubic-bezier(0.16, 1, 0.3, 1)' }}
+      />
     </div>
   );
 }

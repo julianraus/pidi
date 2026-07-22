@@ -1,6 +1,6 @@
 import { useData } from '../hooks/useData.js';
 import { supplyApi, weatherApi, pricesApi, logisticsApi, forecastApi } from '../api.js';
-import { MetricCard, StatusBadge, AlertBanner, LoadingSpinner, ProgressBar, RegionMap } from '../components/shared/index.jsx';
+import { MetricCard, StatusBadge, AlertBanner, LoadingSpinner, ProgressBar, RegionMap, ScoreRing } from '../components/shared/index.jsx';
 
 const DASHBOARD_FALLBACK = {
   balance: {
@@ -141,58 +141,88 @@ export default function Dashboard() {
 
   return (
     <div className="p-4 sm:p-6 space-y-6 max-w-7xl">
-      <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-        <div>
-          <p className="text-xs text-green-700 uppercase tracking-widest mb-1">Kepang AI Decision Intelligence</p>
-          <h1 className="text-2xl font-medium">Cockpit Ketahanan Pangan Indonesia</h1>
-          <p className="text-sm text-gray-500 mt-1 max-w-3xl">
-            Pilot 6 wilayah agregasi - periode {balance?.period_month ? new Date(balance.period_month).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }) : 'terbaru'} - source-aware decision cockpit.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <StatusBadge status={currentScore >= 65 ? 'surplus' : 'warning'} label={readinessLabel} />
-          <StatusBadge status="reference" label={`Data confidence ${dataConfidenceScore}%`} />
-          {isForecastMode && <StatusBadge status="forecast" label="Forecast/offline mode" />}
+      <div className="hero-panel p-6 sm:p-8 reveal">
+        <div className="relative flex flex-col gap-8 xl:flex-row xl:items-center xl:justify-between">
+          <div className="max-w-3xl">
+            <div className="flex items-center gap-2.5 mb-3">
+              <span className="live-dot" />
+              <p className="text-[11px] font-medium uppercase tracking-[0.28em] text-emerald-300/90">Kepang AI - Decision Intelligence</p>
+            </div>
+            <h1 className="font-display text-2xl sm:text-3xl font-semibold text-white">Cockpit Ketahanan Pangan Indonesia</h1>
+            <p className="text-sm text-emerald-100/65 mt-2">
+              Pilot 6 wilayah agregasi - periode {balance?.period_month ? new Date(balance.period_month).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' }) : 'terbaru'} - harga, cuaca, pasokan, dan logistik dianyam jadi satu keputusan.
+            </p>
+
+            <div className="flex flex-wrap gap-2 mt-4">
+              <StatusBadge status={currentScore >= 65 ? 'surplus' : 'warning'} label={readinessLabel} />
+              <StatusBadge status="reference" label={`Data confidence ${dataConfidenceScore}%`} />
+              {isForecastMode && <StatusBadge status="forecast" label="Forecast/offline mode" />}
+            </div>
+
+            <div className="mt-6 rounded-xl border border-white/10 bg-white/[0.04] p-4 backdrop-blur-sm">
+              <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-emerald-300/70 mb-1.5">Decision brief hari ini</p>
+              <h2 className="text-base sm:text-lg font-medium text-white leading-snug">
+                {primaryAction?.title || 'Tentukan prioritas wilayah dari gabungan harga, stok, cuaca, rupiah, dan logistik'}
+              </h2>
+              <p className="text-xs sm:text-sm text-emerald-100/60 mt-1.5">
+                {primaryAction?.rationale || 'Dashboard ini dirancang untuk mengurangi policy lag dengan menampilkan penyebab risiko dan rekomendasi tindakan, bukan hanya angka monitoring.'}
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5 mt-4">
+                <div className="glass-chip">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-emerald-300/80">Owner</p>
+                  <p className="text-xs text-white mt-1">{primaryAction?.owner || 'TPID, pemda, Bulog, dinas pangan'}</p>
+                </div>
+                <div className="glass-chip">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-sky-300/80">Timeframe</p>
+                  <p className="text-xs text-white mt-1">{primaryAction?.timeframe || '0-14 hari'}</p>
+                </div>
+                <div className="glass-chip">
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-amber-300/80">KPI</p>
+                  <p className="text-xs text-white mt-1">{primaryAction?.expected_metric || 'Time-to-insight turun dan gap pasokan menurun'}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <ScoreRing
+            score={currentScore}
+            sublabel={currentScore >= 65 ? 'Kondisi tahan shock, tetap dipantau' : 'Butuh intervensi terarah minggu ini'}
+          />
         </div>
       </div>
 
       {alertList.length > 0 && <AlertBanner alerts={alertList.slice(0, 2)} />}
 
-      <div className="grid grid-cols-1 xl:grid-cols-[1.15fr_0.85fr] gap-5">
-        <div className="card bg-white">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Decision brief</p>
-              <h2 className="text-lg font-medium text-gray-900">
-                {primaryAction?.title || 'Tentukan prioritas wilayah dari gabungan harga, stok, cuaca, rupiah, dan logistik'}
-              </h2>
-              <p className="text-sm text-gray-600 mt-2 max-w-3xl">
-                {primaryAction?.rationale || 'Dashboard ini dirancang untuk mengurangi policy lag dengan menampilkan penyebab risiko dan rekomendasi tindakan, bukan hanya angka monitoring.'}
-              </p>
-            </div>
-            <div className="shrink-0 text-right">
-              <p className={`text-4xl font-medium ${currentScore >= 65 ? 'text-emerald-600' : currentScore >= 52 ? 'text-yellow-600' : 'text-red-500'}`}>
-                {currentScore || '-'}
-              </p>
-              <p className="text-xs text-gray-400">Resilience Score</p>
-            </div>
-          </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 reveal-1">
+        <MetricCard label="Resilience Score" value={resilienceScore ?? foodSecurityIndex} sub="Skala 0-100, makin tinggi makin tahan shock" valueClass={+(resilienceScore ?? foodSecurityIndex) >= 65 ? 'text-green-600' : 'text-yellow-600'} />
+        <MetricCard label="USD/IDR Risk" value={macro.usd_idr ? `Rp ${Number(macro.usd_idr).toLocaleString('id-ID')}` : '-'} sub={macro.usd_idr_change_ptp_pct ? `${macro.usd_idr_change_ptp_pct}% ptp vs 19 Mei 2026` : 'Tekanan imported inflation'} valueClass="text-blue-600" />
+        <MetricCard label="Volatile Food YoY" value={macro.volatile_food_yoy_pct ? `${macro.volatile_food_yoy_pct}%` : (topCommodity ? fmtPct(topCommodity.change_yoy_pct) : '-')} sub="Sinyal tekanan pangan bergejolak" valueClass="text-red-500" />
+        <MetricCard label="Wilayah Defisit" value={balance ? `${balance.deficit_regions} / 6` : '-'} sub="Wilayah perlu intervensi" valueClass={balance?.deficit_regions > 0 ? 'text-yellow-600' : 'text-green-600'} />
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-5">
-            <div className="bg-emerald-50 rounded-md p-3">
-              <p className="text-xs font-medium text-emerald-800">Owner</p>
-              <p className="text-sm text-emerald-950 mt-1">{primaryAction?.owner || 'TPID, pemda, Bulog, dinas pangan'}</p>
+      <div className="grid grid-cols-1 xl:grid-cols-[1.15fr_0.85fr] gap-5 reveal-2">
+        {decisionPlan.length > 0 && (
+          <div className="card">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <h3 className="text-sm font-medium">Prioritas Keputusan Hari Ini</h3>
+                <p className="text-xs text-gray-400 mt-0.5">Tindakan yang menghubungkan risiko harga, cuaca, pasokan, rupiah, dan logistik</p>
+              </div>
+              <span className="badge-blue">Prioritas aktif</span>
             </div>
-            <div className="bg-blue-50 rounded-md p-3">
-              <p className="text-xs font-medium text-blue-800">Timeframe</p>
-              <p className="text-sm text-blue-950 mt-1">{primaryAction?.timeframe || '0-14 hari'}</p>
-            </div>
-            <div className="bg-yellow-50 rounded-md p-3">
-              <p className="text-xs font-medium text-yellow-800">KPI</p>
-              <p className="text-sm text-yellow-950 mt-1">{primaryAction?.expected_metric || 'Time-to-insight turun dan gap pasokan menurun'}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {decisionPlan.slice(0, 4).map((item) => (
+                <div key={item.priority} className="bg-gray-50 rounded-md p-3">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="w-5 h-5 rounded bg-white border border-gray-200 flex items-center justify-center text-[11px] font-medium">{item.priority}</span>
+                    <p className="text-xs font-medium text-gray-900">{item.title}</p>
+                  </div>
+                  <p className="text-[11px] text-gray-500">{item.rationale}</p>
+                </div>
+              ))}
             </div>
           </div>
-        </div>
+        )}
 
         <div className="card">
           <div className="flex items-start justify-between mb-4">
@@ -221,37 +251,7 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <MetricCard label="Resilience Score" value={resilienceScore ?? foodSecurityIndex} sub="Skala 0-100, makin tinggi makin tahan shock" valueClass={+(resilienceScore ?? foodSecurityIndex) >= 65 ? 'text-green-600' : 'text-yellow-600'} />
-        <MetricCard label="USD/IDR Risk" value={macro.usd_idr ? `Rp ${Number(macro.usd_idr).toLocaleString('id-ID')}` : '-'} sub={macro.usd_idr_change_ptp_pct ? `${macro.usd_idr_change_ptp_pct}% ptp vs 19 Mei 2026` : 'Tekanan imported inflation'} valueClass="text-blue-600" />
-        <MetricCard label="Volatile Food YoY" value={macro.volatile_food_yoy_pct ? `${macro.volatile_food_yoy_pct}%` : (topCommodity ? fmtPct(topCommodity.change_yoy_pct) : '-')} sub="Sinyal tekanan pangan bergejolak" valueClass="text-red-500" />
-        <MetricCard label="Wilayah Defisit" value={balance ? `${balance.deficit_regions} / 6` : '-'} sub="Wilayah perlu intervensi" valueClass={balance?.deficit_regions > 0 ? 'text-yellow-600' : 'text-green-600'} />
-      </div>
-
-      {decisionPlan.length > 0 && (
-        <div className="card">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <h3 className="text-sm font-medium">Prioritas Keputusan Hari Ini</h3>
-              <p className="text-xs text-gray-400 mt-0.5">Tindakan yang menghubungkan risiko harga, cuaca, pasokan, rupiah, dan logistik</p>
-            </div>
-            <span className="badge-blue">Prioritas aktif</span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {decisionPlan.slice(0, 4).map((item) => (
-              <div key={item.priority} className="bg-gray-50 rounded-md p-3">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="w-5 h-5 rounded bg-white border border-gray-200 flex items-center justify-center text-[11px] font-medium">{item.priority}</span>
-                  <p className="text-xs font-medium text-gray-900">{item.title}</p>
-                </div>
-                <p className="text-[11px] text-gray-500">{item.rationale}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div className="card">
+      <div className="card reveal-3">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="text-sm font-medium">Peta Status Nasional</h3>
@@ -267,7 +267,7 @@ export default function Dashboard() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 reveal-4">
         <div className="card">
           <h3 className="text-sm font-medium mb-4">Neraca Pasokan per Wilayah - Beras</h3>
           {!regionList.length ? <LoadingSpinner text="Memuat neraca..." /> : (

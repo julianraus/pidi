@@ -28,7 +28,9 @@ export default function App() {
     <div className="flex flex-col sm:flex-row min-h-screen bg-gray-50 text-gray-900">
       <Sidebar currentPage={page} onNavigate={setPage} />
       <main className="flex-1 min-w-0 overflow-auto">
-        <Page />
+        <div key={page} className="page-enter">
+          <Page />
+        </div>
       </main>
     </div>
   );
