@@ -1,147 +1,137 @@
-# Kepang AI — Penjelasan Aplikasi & Skrip Video (Submission Tahap 3)
+# Kepang AI — Skrip Video Pitching + Demo (Submission Tahap 3)
 
-## Bagian 1: Penjelasan Aplikasi (buat kamu paham luar kepala sebelum syuting)
+Video **maks. 180 detik**, struktur yang direkomendasikan guideline:
+**1-Menit Pitch + 2-Menit Demo** (total pas 3 menit). Skrip di bawah dipecah
+per detik **persis mengikuti jendela waktu yang diminta guideline** (halaman 8
+dan 12) — ini yang dinilai panelis. Narasi boleh Anda sesuaikan gaya bicara;
+yang penting urutan pesan dan timing-nya dijaga.
 
-### Satu kalimat inti
-
-Kepang AI mengubah data harga, cuaca, produksi, dan logistik pangan yang
-tersebar di banyak lembaga menjadi **satu rekomendasi tindakan** untuk
-pengambil kebijakan pangan daerah — bukan sekadar dashboard monitoring.
-
-### Siapa penggunanya, dan masalah apa yang diselesaikan
-
-Pengguna utama: **TPID, Bapanas, Bulog, BI regional, dinas pangan daerah** —
-orang-orang yang harus memutuskan kapan operasi pasar, kemana stok
-dipindahkan, dan wilayah mana yang butuh perhatian duluan.
-
-Masalah: **policy lag**. Harga naik, cuaca ekstrem, rupiah melemah, dan
-gangguan logistik sering terjadi bersamaan, tapi datanya ada di sistem
-berbeda-beda (BI untuk harga, BMKG untuk cuaca, BPS untuk makro/produksi,
-tidak ada satupun yang menyatukannya jadi keputusan). Akibatnya intervensi
-baru terjadi setelah harga sudah naik duluan, bukan sebelum.
-
-### 7 modul aplikasi (urutan yang masuk akal untuk demo)
-
-1. **Dashboard** — cockpit ringkas: Resilience Score, Source Confidence
-   (persen data yang real-time vs forecast), decision brief prioritas hari
-   ini, peta status nasional.
-2. **Resilience Room** — ruang kerja utama: pressure breakdown (kontribusi
-   harga/cuaca/rupiah terhadap skor), scenario planning (simulasi rupiah
-   melemah/cuaca ekstrem/gagal panen), action plan dengan owner+timeframe+KPI.
-3. **Supply & Demand** — neraca pasokan per wilayah, peta surplus-defisit,
-   **skor risiko gagal panen per wilayah**, dan rencana redistribusi optimal.
-4. **Food Inflation Monitor** — harga komoditas real-time vs HET, indeks
-   inflasi pangan.
-5. **Smart Food Logistics** — rekomendasi rute prioritas dengan skor
-   (urgensi defisit + kapasitas + biaya + ETA + source confidence), peta
-   jaringan distribusi.
-6. **Weather Risk Engine** — forecast BMKG per wilayah, alert dini.
-7. **Market & Evidence Room** — 4 tab: Demand (bukti masalah nyata),
-   Data Trust (matrix status semua dataset), Business Case (kalkulator
-   revenue/ROI interaktif), Pilot Roadmap.
-
-### Apa yang REAL (bisa kamu klaim dengan percaya diri di video)
-
-- **Harga pangan**: live dari BI Harga Pangan — konsumen *dan* produsen
-  (dua level harga, baru diintegrasikan). Dari situ muncul **margin
-  distribusi produsen-konsumen** — contoh nyata: Bawang Merah di Kalimantan,
-  produsen Rp30.000 vs konsumen Rp45.810 (margin 52,7%). Ini sinyal
-  inefisiensi rantai pasok yang jarang ditampilkan platform lain.
-- **Cuaca**: live dari BMKG, 6/6 wilayah pilot terverifikasi.
-- **Fase ENSO** (input model risiko panen): live dari NOAA, bukan asumsi
-  statis lagi.
-- **Produksi padi**: live dari BPS (var 2506), per provinsi, diagregasi ke
-  6 wilayah — angka production_ton di Supply & Demand sekarang data
-  pemerintah asli untuk beras.
-- **Konteks makro selalu terkini**: inflasi 3,34% yoy dan BI-Rate 5,75%
-  (rilis Juni 2026, per 19 Juli 2026) — BI menaikkan BI-Rate **tiga kali
-  berturut-turut** sejak Mei 2026 (+100bps total) khusus untuk menahan
-  pelemahan rupiah. Ini bukti nyata dan terbaru untuk narasi inti Kepang AI
-  soal tekanan imported inflation — sebutkan di video, ini poin yang kuat.
-
-### Apa yang MODEL/FORECAST (transparan, rule-based, bukan black-box — ini kekuatan, bukan kelemahan)
-
-Resilience Score, skor risiko gagal panen, dan ranking rute logistik adalah
-**hasil hitungan dari formula yang bisa ditelusuri** (bobot tetap: deviasi
-curah hujan 40%, indeks banjir 30%, indeks kekeringan 20%, ENSO 10% —
-bukan AI black-box). Ini justru relevan dengan kriteria "Algorithm Quality"
-guideline yang eksplisit bilang tidak wajib pakai AI asal logikanya
-transparan dan bisa ditelusuri.
-
-### Apa yang JUJUR belum tersedia (jangan disembunyikan, tunjukkan sebagai kedewasaan produk)
-
-Stok gudang, demand granular per wilayah, dan biaya/kapasitas logistik
-aktual masih berlabel `forecast`/`unavailable` — karena data itu terkunci
-di sistem internal Bapanas (S.A.P.A), bukan API publik. Ini **sudah dicek
-langsung**, bukan asumsi. Tampilkan badge ini di video — justru
-menunjukkan kejujuran data yang diminta guideline.
+Demo direkam langsung dari aplikasi **live**: `https://pidi-seven.vercel.app`
+(bukan localhost — supaya panelis tahu ini benar ter-deploy).
 
 ---
 
-## Bagian 2: Skrip Video
+## RINGKASAN CEPAT (hafal sebelum syuting)
 
-Guideline merekomendasikan format **1-Minute Pitch + 2-Minute Demo**
-(total pas 3 menit, sesuai batas maksimal). Skrip di bawah sudah dipecah
-per detik sesuai rekomendasi guideline sendiri.
+**Satu kalimat:** Kepang AI menganyam data harga, cuaca, produksi, dan tekanan
+rupiah yang tersebar di banyak lembaga menjadi **satu keputusan** untuk
+pengambil kebijakan pangan daerah — dari monitoring jadi aksi dalam hitungan
+menit.
 
-### FORMAT A — One-Minute Pitch (elevator pitch)
+**Pengguna:** TPID, Bapanas, Bulog, BI regional, dinas pangan.
+**Masalah:** *policy lag* — sinyal krisis tersebar di 4 institusi (BPS, BI,
+BMKG, NOAA), intervensi telat.
 
-| Waktu | Narasi (draft, sesuaikan gaya bicara kamu) | Visual |
-|---|---|---|
-| **0–5 detik** | "Kami J4, dan ini Kepang AI." | Logo/judul: "Kepang AI — Decision Intelligence untuk Resiliensi Ketahanan Pangan Daerah" |
-| **5–15 detik** | "Bank Indonesia sudah menaikkan suku bunga tiga kali berturut-turut demi menahan rupiah. TPID dan dinas pangan butuh cara cepat menghubungkan tekanan ini ke keputusan stok pangan — bukan data yang tersebar di sistem berbeda." | Cuplikan Dashboard/Evidence Room: fact card BI-Rate 5,75% dan inflasi 3,34% |
-| **15–35 detik** | "Kepang AI menyatukan semuanya jadi satu Resilience Score dan rekomendasi tindakan. Di sini, harga bawang merah — data produsen dan konsumen, live dari Bank Indonesia — menunjukkan margin distribusi 52 persen di Kalimantan. Sistem langsung merekomendasikan wilayah mana yang perlu diprioritaskan." | Screen record: Resilience Room → pressure breakdown → Supply & Demand → margin/harga |
-| **35–45 detik** | "Skornya dihitung dari formula yang bisa ditelusuri — bukan black-box — dari data cuaca BMKG, harga BI, produksi BPS, dan indeks iklim NOAA yang semuanya live." | Cuplikan Weather Risk / data lineage badge |
-| **45–55 detik** | "Hasilnya: waktu identifikasi wilayah prioritas turun dari berjam-jam jadi di bawah 3 menit — dan berpotensi menjadi produk SaaS institusional dengan model lisensi tahunan ke pemda dan Bapanas." | Cuplikan Evidence Room tab Business Case |
-| **55–60 detik** | "Prototype sudah berjalan end-to-end dengan data real. Kami membuka kolaborasi dengan TPID dan Bapanas untuk pilot pertama." | Closing card: nama tim + call to action |
+**Bukti nyata yang boleh diklaim dengan percaya diri:**
+- Volatile food **5,58% yoy** — hampir 2x inflasi umum 3,34% (BPS Juni 2026).
+- Rupiah **Rp17.944** (JISDOR 17 Jul 2026); **BI-Rate 5,75%** setelah naik
+  3 kali berturut sejak Mei 2026.
+- **El Niño** aktif (NOAA) → menaikkan skor risiko panen.
+- **Peta harga beras 34 provinsi live dari BI**: Papua & Kalimantan **20–23%
+  di atas median nasional**, lumbung padi (NTB, DIY, Sulsel) di bawah median —
+  disparitas nyata, bukan estimasi.
+- **APBN 2026: Rp210,4 triliun** untuk ketahanan pangan (konteks pasar).
 
-### FORMAT B — Two-Minute Demo (kalau kamu pilih format terpisah, bukan 3 menit gabungan)
-
-| Waktu | Fokus | Yang ditampilkan |
-|---|---|---|
-| **0–10 detik** | Pengantar | "Ini adalah alur kerja seorang analis TPID saat harga cabai naik cepat di satu wilayah." |
-| **10–60 detik** | Bukti utama | Screen record nyata: buka Dashboard → lihat Resilience Score turun → masuk Resilience Room → lihat pressure breakdown (kontribusi harga/cuaca/rupiah) → buka Supply & Demand, tunjukkan peta surplus-defisit dan skor risiko gagal panen per wilayah |
-| **60–90 detik** | Cara kerja & kedalaman | Jelaskan singkat: "Input-nya harga harian BI, forecast BMKG, fase ENSO NOAA, produksi BPS. Diproses jadi risk score dengan bobot tetap, lalu resilience score gabungan. Semua data diberi label real-time/forecast/unavailable — bisa diaudit dari API, bukan cuma diklaim di layar." (tunjukkan badge data lineage) |
-| **90–110 detik** | Bukti validasi | "Kami verifikasi langsung setiap integrasi — bukan asumsi. Contoh: kami temukan dan perbaiki kode wilayah cuaca yang salah, dan bug label data yang bisa membuat data sintetis diklaim sebagai data resmi." (opsional: cuplikan kode/terminal test kalau mau kasih kredibilitas teknis) |
-| **110–120 detik** | Status jujur & closing | "Harga, cuaca, dan produksi sudah real. Stok gudang dan biaya logistik masih kami tandai forecast sampai ada kemitraan data dengan Bapanas dan Bulog. Kami siap pilot dengan TPID dan dinas pangan." |
-
-### Rekomendasi teknis (dari guideline, wajib dipatuhi)
-
-- Durasi maksimal **180 detik total**, termasuk logo/bumper/credit.
-- Resolusi minimum **1920×1080 (Full HD)**, rasio **16:9 horizontal**.
-- Upload ke **YouTube, harus publik** (bukan private/unlisted-only kalau
-  panitia perlu akses langsung — cek instruksi submission form lagi soal
-  unlisted vs public).
-- Subtitle sangat direkomendasikan.
-- Audio narasi jelas, musik latar tidak boleh menutupi suara.
-
-### Do's yang paling relevan buat kamu
-
-- Tunjukkan data real (harga produsen-konsumen, margin, angka BPS) —
-  ini "bukti yang dapat dipertanggungjawabkan" persis yang diminta guideline.
-- Jangan sembunyikan bagian yang masih forecast/unavailable — tunjukkan
-  badge-nya. Guideline eksplisit menghargai kejujuran status.
-- Screen recording asli dari aplikasi berjalan > slide statis.
+**Yang jujur belum ada (tunjukkan, jangan sembunyikan):** stok gudang, demand
+granular, biaya logistik aktual → berlabel `forecast`/`unavailable` di UI.
+Validasi pengguna baru **dijadwalkan** (wawancara BI).
 
 ---
 
-## Bagian 3: Checklist sebelum submit
+## SKRIP — 1-MENIT PITCH (0:00 – 1:00)
 
-- [ ] Konfirmasi Team ID final di form pidi.id (draft pakai P0684, cek ulang)
-- [ ] Rekam video sesuai skrip di atas, upload YouTube publik
-- [x] Deploy publik live — Frontend `https://pidi-seven.vercel.app`,
-      Backend `https://kepang-ai-api.onrender.com` (terverifikasi
-      menampilkan data real)
-- [ ] Kumpulkan link LinkedIn/CV 4 anggota tim
-- [ ] Copy-paste jawaban dari `docs/SUBMISSION_ANSWERS_3RD.md` ke form,
-      sesuaikan bagian `[CEK]`
-- [ ] Upload `submission_attachments/P0684 - Kepang AI Lampiran Submission Tahap 3.pdf`
-      sebagai File Attachment
-- [ ] Submit sebelum deadline
+| Waktu | Narasi (ucapkan) | Yang tampil di layar |
+|---|---|---|
+| **0:00–0:05** | "Kami tim J4. Ini **Kepang AI** — decision intelligence untuk ketahanan pangan daerah." | Kartu judul: logo + "Kepang AI: Decision Intelligence untuk Resiliensi Ketahanan Pangan Daerah" |
+| **0:05–0:15** | "Inflasi pangan 5,58 persen — hampir dua kali inflasi umum. Rupiah dan suku bunga menekan. Tapi sinyalnya tersebar di empat lembaga, dan TPID telat bertindak." | Cockpit live — sorot metrik: Volatile Food 5,58%, USD/IDR Rp17.944, Resilience Score |
+| **0:15–0:35** | "Kepang AI menganyam keempatnya jadi satu. Ini peta harga beras 34 provinsi, live dari Bank Indonesia. Papua dan Kalimantan dua puluh persen di atas median nasional — sementara lumbung padi di bawah. Dari sini sistem langsung menyusun prioritas: wilayah mana yang perlu ditindak duluan." | Screen record: hover peta 34 provinsi (provinsi merah → tooltip harga), lalu decision brief di hero |
+| **0:35–0:45** | "Skornya bukan black-box. Dihitung dari formula yang bisa ditelusuri — cuaca BMKG, harga BI, produksi BPS, indeks iklim NOAA — semuanya live, dan tiap angka diberi label sumbernya." | Sorot panel Source Health / badge data lineage |
+| **0:45–0:55** | "Hasilnya: identifikasi wilayah prioritas dari berjam-jam jadi di bawah tiga menit. Pasarnya nyata — APBN pangan 210 triliun. Model SaaS ke pemda dan BI regional." | Kartu angka: "210,4 T APBN" + "< 3 menit vs berjam-jam" |
+| **0:55–1:00** | "Prototype sudah live dengan data real. Kami buka pilot dengan BI dan TPID." | Closing card: URL live + "J4 · siap pilot" |
 
-## Update video script — pakai URL live
+---
 
-Untuk bagian demo di video, buka langsung `https://pidi-seven.vercel.app`
-di browser (bukan localhost) supaya juri bisa lihat ini benar-benar
-ter-deploy, bukan cuma jalan di laptop kamu. Sebutkan di narasi kalau mau:
-"aplikasi ini sudah live di internet, bukan cuma prototype lokal."
+## SKRIP — 2-MENIT DEMO (1:00 – 3:00)
+
+Rekam sebagai **satu screen recording mulus** dari aplikasi live. Latih dulu
+2× supaya lancar. Hangatkan backend 5–10 menit sebelum rekam (buka situs,
+refresh) agar tidak ada mode offline.
+
+| Waktu | Fokus (sesuai guideline) | Narasi + aksi di layar |
+|---|---|---|
+| **1:00–1:10** | Pengantar deep-dive | "Ini alur kerja seorang analis TPID saat harga beras naik cepat. Saya mulai dari Cockpit." **Aksi:** buka `pidi-seven.vercel.app`, tampil Cockpit. |
+| **1:10–2:00** | Bukti utama inovasi (walkthrough) | "Pertama saya pilih peran — TPID — dan brief-nya menyesuaikan tanggung jawab saya." **Aksi:** klik role switcher (TPID→Bulog sekilas→kembali TPID). "Resilience Score 63, dan sistem sudah menaruh aksi prioritas: pre-positioning stok ke wilayah defisit, lengkap dengan owner, timeframe, dan KPI." **Aksi:** tunjuk decision brief + kartu aksi drill-down (klik satu aksi → owner/KPI muncul). "Di peta nasional, saya lihat langsung provinsi mana yang harga berasnya di atas median." **Aksi:** hover 2–3 provinsi merah di peta 34 provinsi. |
+| **2:00–2:30** | Cara kerja & kedalaman | "Di baliknya: input harga harian BI, forecast BMKG, fase ENSO NOAA, produksi BPS. Diproses jadi skor risiko dengan bobot tetap — deviasi hujan 40%, banjir 30%, kekeringan 20%, ENSO 10% — lalu digabung jadi Resilience Score. Setiap dataset diberi label real-time, rilis resmi, forecast, atau belum tersedia — bisa diaudit dari API, bukan cuma diklaim di layar." **Aksi:** scroll ke panel Source Health, tunjuk label tiap dataset + persen confidence. |
+| **2:30–2:50** | Bukti validasi / hasil awal | "Datanya benar-benar hidup — harga per provinsi ini ditarik langsung dari BI, bukan angka contoh. Setiap integrasi kami verifikasi; prosesnya menemukan dan memperbaiki bug nyata, termasuk kode wilayah cuaca yang salah dan label sumber yang keliru. Validasi ke pengguna langsung — wawancara dengan BI yang menangani pangan — sedang kami jadwalkan." **Aksi:** jalankan Simulator Shock (geser slider rupiah/panen) → skor berubah real-time. |
+| **2:50–3:00** | Status jujur & batas | "Harga, cuaca, dan produksi sudah real. Stok dan biaya logistik kami tandai forecast sampai ada kemitraan Bapanas dan Bulog — bukan dikarang. Prototype live. Terima kasih." **Aksi:** buka modal Export decision brief (tunjukkan bisa dicetak/PDF) → closing card. |
+
+---
+
+## SHOT LIST / CHECKLIST SYUTING
+
+**Sebelum rekam:**
+- [ ] Buka `https://pidi-seven.vercel.app` 5–10 menit lebih dulu, refresh 1×
+      (hangatkan backend Render agar tidak muncul badge "Forecast/offline mode").
+- [ ] Pastikan peta menampilkan badge **"Harga per provinsi (BI)"** (mode data
+      per-provinsi aktif). Kalau belum, tunggu/refresh.
+- [ ] Browser full-screen (F11), zoom 100–110%, tutup tab lain & notifikasi.
+- [ ] Latih klik-path demo 2× dengan timer. Peran yang diklik, provinsi yang
+      di-hover, slider yang digeser — tentukan di depan, jangan improvisasi.
+- [ ] Siapkan rekaman cadangan: rekam full demo sehari sebelumnya kalau wifi
+      venue/koneksi bermasalah saat hari-H.
+
+**Urutan klik demo (hafalkan):**
+1. Cockpit tampil → 2. Role switcher (TPID→Bulog→TPID) → 3. Decision brief +
+klik 1 kartu aksi (drill-down) → 4. Hover 2–3 provinsi merah di peta →
+5. Scroll ke Source Health → 6. Simulator Shock (geser 1–2 slider) →
+7. Export decision brief (buka modal) → closing.
+
+**Kalau ada elemen fallback muncul:** sebut jujur ("bagian ini kami tandai
+forecast") — konsisten dengan pesan kejujuran data. Jangan panik, itu justru
+poin plus di mata panelis.
+
+---
+
+## SYARAT TEKNIS (dari guideline, wajib)
+
+- Durasi **maks. 180 detik** — termasuk logo/bumper/credit. Jangan lewat.
+- Resolusi **min. 1920×1080 (Full HD)**, rasio **16:9 horizontal** (jangan
+  vertikal/persegi).
+- Upload **YouTube** — form minta format **unlisted** dan **bisa diakses
+  publik tanpa login**. Cek sekali lagi tautannya bisa dibuka di mode incognito.
+- **Subtitle sangat direkomendasikan** (buat yang sesuai narasi).
+- Audio narasi jelas; musik latar tidak menutupi suara; volume antarbagian
+  konsisten; hindari noise.
+- Narasi boleh Bahasa Indonesia atau Inggris (skrip ini Indonesia).
+
+## DO / DON'T (yang paling relevan)
+
+**DO:**
+- Tunjukkan **data real** bergerak (harga per provinsi, angka BPS/BI) — ini
+  "bukti yang dapat dipertanggungjawabkan" yang diminta guideline.
+- Pakai **screen recording aplikasi live**, bukan slide statis.
+- Jelaskan fungsi teknologi secara sederhana (bobot skor, data lineage), bukan
+  sekadar menyebut "AI".
+- Tunjukkan badge **forecast/unavailable** — guideline menghargai kejujuran.
+
+**DON'T:**
+- Jangan slideshow tanpa narasi/konteks.
+- Jangan klaim tanpa bukti (mis. "sudah dipakai TPID" — belum, jangan diucapkan).
+- Jangan sebut "AI" sebagai jargon tanpa menjelaskan fungsinya.
+- Jangan tampilkan karya/aset pihak lain.
+
+---
+
+## CHECKLIST SUBMIT (setelah video jadi)
+
+- [ ] Konfirmasi **Team ID** final di pidi.id (draft: P0684).
+- [ ] Upload video ke YouTube (unlisted, cek bisa dibuka tanpa login).
+- [x] Deploy publik live — `https://pidi-seven.vercel.app` +
+      `https://kepang-ai-api.onrender.com` (terverifikasi data real, termasuk
+      harga per 34 provinsi).
+- [ ] Kumpulkan link LinkedIn/CV 4 anggota.
+- [ ] Copy jawaban dari `docs/SUBMISSION_ANSWERS_3RD.md` ke form (isi `[CEK]`).
+- [ ] Upload lampiran PDF (nama file: `P0684 - <Judul Proposal>`, maks 5MB).
+- [ ] Kalau wawancara BI selesai sebelum submit → perbarui bagian validasi di
+      jawaban & video dengan kutipan nyata.
+- [ ] Submit sebelum deadline.
