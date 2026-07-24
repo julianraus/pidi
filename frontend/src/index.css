@@ -108,6 +108,19 @@
   .table-base tbody tr { transition: background .15s ease; }
   .table-base tbody tr:hover td { background: color-mix(in srgb, var(--color-text) 4%, transparent); }
 
+  /* Industry harmonization bridge for the Tailwind pages (Resilience, Supply,
+     Inflation, Logistics, Weather, AiForecast, Evidence). Squares corners and
+     shifts plain white/gray inner boxes onto Industry neutrals so those pages
+     match the Cockpit without rewriting each one. Semantic colour callouts
+     (emerald/blue/amber/red) are left intact - they carry meaning. Exact
+     `bg-white` only; alpha variants like bg-white/95 (map tooltip) are untouched. */
+  .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl { border-radius: 0 !important; }
+  .bg-white { background-color: var(--color-neutral-100) !important; }
+  .bg-gray-50 { background-color: var(--color-neutral-200) !important; }
+  .bg-gray-100 { background-color: var(--color-neutral-200) !important; }
+  .border-gray-200 { border-color: var(--color-divider) !important; }
+  .border-gray-100 { border-color: color-mix(in srgb, var(--color-text) 8%, transparent) !important; }
+
   /* Corner registration marks for blueprint frames (used app-wide). */
   .corner { position: absolute; width: 11px; height: 11px; color: color-mix(in srgb, var(--color-text) 55%, transparent); }
   .corner::before, .corner::after { content: ''; position: absolute; background: currentColor; }
