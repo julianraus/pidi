@@ -196,3 +196,4 @@ export function ProgressBar({ value, max = 100, color = 'bg-green-500' }) {
 }
 
 export { RegionMap } from './RegionMap.jsx';
+export { ChoroplethMap } from './ChoroplethMap.jsx';
