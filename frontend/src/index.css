@@ -2,191 +2,152 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Industry design system is imported first (styles/industry.css): it owns the
+ * CSS tokens (--color-*, --font-*, --space-*), the .blueprint frame, .tag,
+ * .seg, dialogs, and base typography. Here we re-skin the app's shared class
+ * names (.card, .badge-*, .table-base, .nav-link, .metric-card, .btn-*) onto
+ * those same tokens so every page shifts to the Industry look at once.
+ */
+
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900;
-    background-image:
-      radial-gradient(ellipse 80% 50% at 100% 0%, rgba(16, 185, 129, 0.07), transparent),
-      radial-gradient(ellipse 60% 40% at 0% 100%, rgba(14, 165, 233, 0.05), transparent);
-    background-attachment: fixed;
+    background: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-body);
   }
+  h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); }
 
-  ::selection {
-    @apply bg-emerald-200 text-emerald-950;
-  }
+  ::selection { background: color-mix(in srgb, var(--color-accent) 30%, transparent); }
 
-  h1 {
-    @apply font-display tracking-tight;
-  }
-
-  /* Subtle custom scrollbar so long tables feel intentional, not default */
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    @apply bg-gray-300/80 rounded-full;
+    background: var(--color-neutral-300);
     border: 3px solid transparent;
     background-clip: content-box;
   }
-  ::-webkit-scrollbar-thumb:hover { @apply bg-gray-400/80; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-neutral-400); }
 }
 
 @layer components {
+  /* Blueprint card: square, hairline, transparent - the Industry object frame. */
   .card {
-    @apply bg-white rounded-xl border border-gray-200/90 p-5 shadow-card transition-all duration-300;
+    position: relative;
+    background: var(--color-neutral-100);
+    border: 1px solid var(--color-divider);
+    border-radius: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: box-shadow .25s ease, border-color .25s ease;
   }
-  .card:hover {
-    @apply shadow-card-hover border-emerald-200/80;
-    transform: translateY(-2px);
-  }
+  .card:hover { box-shadow: var(--shadow-sm); border-color: color-mix(in srgb, var(--color-text) 26%, transparent); }
 
   .metric-card {
-    @apply relative bg-white rounded-xl border border-gray-200/90 p-4 shadow-card transition-all duration-300 overflow-hidden;
+    position: relative;
+    background: var(--color-neutral-100);
+    border: 1px solid var(--color-divider);
+    border-radius: 0;
+    padding: 16px;
+    transition: box-shadow .25s ease, border-color .25s ease;
   }
-  .metric-card::before {
-    content: '';
-    @apply absolute inset-x-0 top-0 h-0.5;
-    background: linear-gradient(90deg, #10b981, #34d399 55%, transparent);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-  .metric-card:hover {
-    @apply shadow-card-hover border-emerald-200/80;
-    transform: translateY(-2px);
-  }
-  .metric-card:hover::before { opacity: 1; }
+  .metric-card:hover { box-shadow: var(--shadow-sm); border-color: color-mix(in srgb, var(--color-text) 26%, transparent); }
 
   .btn {
-    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-heading); font-weight: 600;
+    font-size: 14px; line-height: 1.2;
+    padding: 8px 14px; border-radius: 0;
+    border: 1px solid var(--color-divider);
+    transition: background .15s ease, border-color .15s ease;
   }
-  .btn-primary {
-    @apply btn bg-brand-600 text-white hover:bg-brand-700 hover:shadow-glow active:scale-95;
-  }
-  .btn-secondary {
-    @apply btn bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-emerald-300 active:scale-95;
-  }
+  .btn-primary { background: var(--color-accent); color: var(--color-bg); border-color: var(--color-accent); }
+  .btn-primary:hover { background: var(--color-accent-700); }
+  .btn-primary:active { background: var(--color-accent-800); }
+  .btn-secondary { background: transparent; color: var(--color-text); }
+  .btn-secondary:hover { background: color-mix(in srgb, var(--color-text) 7%, transparent); }
 
+  /* Badges -> Industry tags (square-ish, quiet). Kept semantic colours for
+     surplus/deficit/risk so the decision signals stay readable. */
   .badge {
-    @apply inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium;
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; letter-spacing: .02em;
+    padding: 3px 9px; border-radius: 2px; font-weight: 500;
   }
-  .badge::before {
-    content: '';
-    @apply w-1.5 h-1.5 rounded-full shrink-0;
-    background: currentColor;
-    opacity: 0.65;
-  }
-  .badge-green  { @apply badge bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/15; }
-  .badge-red    { @apply badge bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/15; }
-  .badge-yellow { @apply badge bg-yellow-50 text-yellow-700 ring-1 ring-inset ring-yellow-600/20; }
-  .badge-blue   { @apply badge bg-blue-50 text-blue-700 ring-1 ring-inset ring-blue-600/15; }
-  .badge-gray   { @apply badge bg-gray-100 text-gray-600 ring-1 ring-inset ring-gray-500/15; }
+  .badge::before { content: ''; width: 6px; height: 6px; flex: none; background: currentColor; opacity: .7; }
+  .badge-green  { @apply badge; background: var(--color-accent-100); color: var(--color-accent-800); }
+  .badge-red    { @apply badge; background: #fbe9e9; color: #9b1c1c; }
+  .badge-yellow { @apply badge; background: #fbf3e2; color: #8a5a00; }
+  .badge-blue   { @apply badge; background: var(--color-neutral-200); color: var(--color-neutral-800); }
+  .badge-gray   { @apply badge; background: var(--color-neutral-200); color: var(--color-neutral-700); }
 
   .nav-link {
-    @apply flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition-colors;
+    display: flex; align-items: center; gap: 9px;
+    padding: 8px 10px; border-radius: 0; border: 1px solid transparent;
+    font-size: 13.5px; font-weight: 500;
+    color: color-mix(in srgb, var(--color-text) 68%, transparent);
+    transition: background .15s ease, color .15s ease;
   }
-  .nav-link.active {
-    @apply bg-green-50 text-green-700;
-  }
+  .nav-link:hover { background: color-mix(in srgb, var(--color-text) 6%, transparent); color: var(--color-text); }
+  .nav-link.active { background: var(--color-accent-900); color: var(--color-bg); border-color: var(--color-accent-900); }
 
-  /* Dark sidebar variant */
-  .nav-link-deck {
-    @apply flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200;
-    color: rgba(209, 250, 229, 0.62);
-  }
-  .nav-link-deck:hover {
-    color: #ffffff;
-    background: rgba(255, 255, 255, 0.06);
-  }
-  .nav-link-deck.active {
-    color: #6ee7b7;
-    background: rgba(16, 185, 129, 0.14);
-    box-shadow: inset 0 0 0 1px rgba(52, 211, 153, 0.22);
-  }
-
-  .table-base {
-    @apply w-full text-sm border-collapse;
-  }
+  .table-base { width: 100%; font-size: 14px; border-collapse: collapse; }
   .table-base th {
-    @apply text-left text-xs font-medium text-gray-500 uppercase tracking-wider pb-2 border-b border-gray-200 px-2;
+    text-align: left; font-size: 11px; font-weight: 500;
+    letter-spacing: .08em; text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-text) 60%, transparent);
+    padding: 6px 8px; border-bottom: 1px solid var(--color-divider);
   }
   .table-base td {
-    @apply px-2 py-2.5 border-b border-gray-100 text-gray-800;
+    padding: 8px; color: var(--color-neutral-900);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-text) 8%, transparent);
   }
-  .table-base tr:last-child td {
-    @apply border-b-0;
-  }
-  .table-base tbody tr {
-    @apply transition-colors;
-  }
-  .table-base tbody tr:hover td {
-    @apply bg-emerald-50/40;
-  }
+  .table-base tr:last-child td { border-bottom: 0; }
+  .table-base tbody tr { transition: background .15s ease; }
+  .table-base tbody tr:hover td { background: color-mix(in srgb, var(--color-text) 4%, transparent); }
 
-  /* Dark "command deck" hero panel */
-  .hero-panel {
-    @apply relative overflow-hidden rounded-2xl text-white;
-    background:
-      radial-gradient(ellipse 70% 90% at 85% 10%, rgba(52, 211, 153, 0.16), transparent),
-      radial-gradient(ellipse 50% 70% at 10% 100%, rgba(14, 165, 233, 0.10), transparent),
-      linear-gradient(135deg, #041b14 0%, #07291f 55%, #0b3b2e 100%);
-  }
-  .hero-panel::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
-    background-size: 36px 36px;
-    mask-image: radial-gradient(ellipse 90% 90% at 60% 20%, black 30%, transparent 75%);
-    pointer-events: none;
-  }
+  /* Industry harmonization bridge for the Tailwind pages (Resilience, Supply,
+     Inflation, Logistics, Weather, AiForecast, Evidence). Squares corners and
+     shifts plain white/gray inner boxes onto Industry neutrals so those pages
+     match the Cockpit without rewriting each one. Semantic colour callouts
+     (emerald/blue/amber/red) are left intact - they carry meaning. Exact
+     `bg-white` only; alpha variants like bg-white/95 (map tooltip) are untouched. */
+  .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl { border-radius: 0 !important; }
+  .bg-white { background-color: var(--color-neutral-100) !important; }
+  .bg-gray-50 { background-color: var(--color-neutral-200) !important; }
+  .bg-gray-100 { background-color: var(--color-neutral-200) !important; }
+  .border-gray-200 { border-color: var(--color-divider) !important; }
+  .border-gray-100 { border-color: color-mix(in srgb, var(--color-text) 8%, transparent) !important; }
 
-  .glass-chip {
-    @apply rounded-lg px-3 py-2.5;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    backdrop-filter: blur(6px);
-  }
-
-  .live-dot {
-    @apply relative inline-flex w-2 h-2 rounded-full bg-emerald-400 shrink-0;
-  }
-  .live-dot::after {
-    content: '';
-    @apply absolute inset-0 rounded-full bg-emerald-400;
-    animation: ping-soft 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
-  }
+  /* Corner registration marks for blueprint frames (used app-wide). */
+  .corner { position: absolute; width: 11px; height: 11px; color: color-mix(in srgb, var(--color-text) 55%, transparent); }
+  .corner::before, .corner::after { content: ''; position: absolute; background: currentColor; }
+  .corner::before { left: 5px; top: 0; width: 1px; height: 100%; }
+  .corner::after  { top: 5px; left: 0; width: 100%; height: 1px; }
+  .corner.tl { top: -6px; left: -6px; }
+  .corner.tr { top: -6px; right: -6px; }
+  .corner.bl { bottom: -6px; left: -6px; }
+  .corner.br { bottom: -6px; right: -6px; }
 }
 
 @layer utilities {
-  .reveal {
-    animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  .reveal-1 { animation-delay: 0.05s; }
-  .reveal-2 { animation-delay: 0.12s; }
-  .reveal-3 { animation-delay: 0.19s; }
-  .reveal-4 { animation-delay: 0.26s; }
-  .reveal-5 { animation-delay: 0.33s; }
-
-  .page-enter {
-    animation: fade-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
+  .reveal { animation: fade-up .5s cubic-bezier(.16,1,.3,1) both; }
+  .reveal-1 { animation-delay: .05s; }
+  .reveal-2 { animation-delay: .12s; }
+  .reveal-3 { animation-delay: .19s; }
+  .reveal-4 { animation-delay: .26s; }
+  .reveal-5 { animation-delay: .33s; }
+  .page-enter { animation: fade-up .4s cubic-bezier(.16,1,.3,1) both; }
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(14px); }
+  from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes ping-soft {
-  0%   { transform: scale(1);   opacity: 0.7; }
-  70%  { transform: scale(2.6); opacity: 0; }
-  100% { transform: scale(2.6); opacity: 0; }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .reveal, .reveal-1, .reveal-2, .reveal-3, .reveal-4, .reveal-5, .page-enter {
-    animation: none;
-  }
-  .card:hover, .metric-card:hover { transform: none; }
+  .reveal, .reveal-1, .reveal-2, .reveal-3, .reveal-4, .reveal-5, .page-enter { animation: none; }
+  .card:hover, .metric-card:hover { box-shadow: none; }
 }

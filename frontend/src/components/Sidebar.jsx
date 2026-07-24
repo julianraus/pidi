@@ -80,11 +80,11 @@ const NAV_ITEMS = [
 // dianyam menjadi satu keputusan - logo mengikuti motif itu.
 function BraidLogo() {
   return (
-    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-glow shrink-0">
-      <svg viewBox="0 0 24 24" fill="none" stroke="#041b14" strokeWidth="2.2" strokeLinecap="round" className="w-5 h-5">
+    <div className="blueprint" style={{ width: 34, height: 34, flex: 'none', display: 'grid', placeItems: 'center', background: 'var(--color-accent)' }}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--color-bg)" strokeWidth="1.8" strokeLinecap="round" style={{ width: 20, height: 20 }}>
         <path d="M4 6c4 0 4 6 8 6s4-6 8-6" />
-        <path d="M4 12c4 0 4 6 8 6s4-6 8-6" opacity="0.75" />
-        <path d="M4 18c2.5 0 3.5-2.2 5-3.8" opacity="0.5" />
+        <path d="M4 12c4 0 4 6 8 6s4-6 8-6" opacity="0.7" />
+        <path d="M4 18c2.5 0 3.5-2.2 5-3.8" opacity="0.45" />
       </svg>
     </div>
   );
@@ -92,25 +92,26 @@ function BraidLogo() {
 
 export default function Sidebar({ currentPage, onNavigate }) {
   return (
-    <aside className="w-full sm:w-60 shrink-0 sm:h-screen sticky top-0 z-30 flex flex-col border-b sm:border-b-0 sm:border-r border-emerald-950/40 bg-deck-950 text-emerald-50">
+    <aside
+      className="w-full sm:w-60 shrink-0 sm:h-screen sticky top-0 z-30 flex flex-col"
+      style={{ background: 'var(--color-neutral-100)', borderRight: '1px solid var(--color-divider)', color: 'var(--color-text)' }}
+    >
       {/* Logo */}
-      <div className="px-4 py-3 sm:py-5 border-b border-white/5">
-        <div className="flex items-center gap-3">
-          <BraidLogo />
-          <div>
-            <p className="font-display text-sm font-semibold text-white leading-tight tracking-wide">Kepang AI</p>
-            <p className="text-[10px] text-emerald-200/50">Food Resilience Intelligence</p>
-          </div>
+      <div className="flex items-center gap-3" style={{ padding: '18px 16px', borderBottom: '1px solid var(--color-divider)' }}>
+        <BraidLogo />
+        <div>
+          <p style={{ fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: 17, lineHeight: 1 }}>Kepang AI</p>
+          <p style={{ fontSize: 10, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--color-accent-700)', marginTop: 3 }}>Food Resilience Intelligence</p>
         </div>
       </div>
 
       {/* Nav */}
-      <nav className="flex sm:flex-col sm:flex-1 gap-1 sm:gap-0 px-3 py-2 sm:py-4 sm:space-y-1 overflow-x-auto sm:overflow-x-visible sm:overflow-y-auto">
+      <nav className="flex sm:flex-col sm:flex-1 gap-1 sm:gap-0 px-2.5 py-2 sm:py-3 sm:space-y-0.5 overflow-x-auto sm:overflow-x-visible sm:overflow-y-auto">
         {NAV_ITEMS.map((item) => (
           <button
             key={item.page}
             onClick={() => onNavigate(item.page)}
-            className={`nav-link-deck shrink-0 sm:w-full text-left whitespace-nowrap ${currentPage === item.page ? 'active' : ''}`}
+            className={`nav-link shrink-0 sm:w-full text-left whitespace-nowrap ${currentPage === item.page ? 'active' : ''}`}
           >
             {item.icon}
             <span>{item.label}</span>
@@ -119,12 +120,12 @@ export default function Sidebar({ currentPage, onNavigate }) {
       </nav>
 
       {/* Footer */}
-      <div className="hidden sm:block px-4 py-4 border-t border-white/5">
-        <div className="flex items-center gap-2 mb-1.5">
-          <span className="live-dot" />
-          <p className="text-[10px] font-medium text-emerald-300/90 uppercase tracking-wider">Live data feed</p>
+      <div className="hidden sm:block" style={{ padding: '14px 16px', borderTop: '1px solid var(--color-divider)' }}>
+        <div className="flex items-center gap-2" style={{ marginBottom: 6 }}>
+          <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--color-accent)', boxShadow: '0 0 0 3px color-mix(in srgb,var(--color-accent) 24%,transparent)' }} />
+          <span style={{ fontSize: 10, letterSpacing: '.14em', textTransform: 'uppercase', color: 'var(--color-accent-700)' }}>Live data feed</span>
         </div>
-        <p className="text-[10px] text-emerald-200/40 leading-relaxed">BI Harga Pangan - BMKG - BPS - NOAA. Pilot 6 wilayah agregasi.</p>
+        <p style={{ fontSize: 11, lineHeight: 1.5, color: 'var(--color-neutral-600)', margin: 0 }}>BI Harga Pangan · BMKG · BPS · NOAA. Pilot 6 wilayah agregasi.</p>
       </div>
     </aside>
   );

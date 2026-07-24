@@ -25,7 +25,7 @@ export default function App() {
   const Page = PAGES[page] || Dashboard;
 
   return (
-    <div className="flex flex-col sm:flex-row min-h-screen bg-gray-50 text-gray-900">
+    <div className="flex flex-col sm:flex-row min-h-screen" style={{ background: 'var(--color-bg)', color: 'var(--color-text)' }}>
       <Sidebar currentPage={page} onNavigate={setPage} />
       <main className="flex-1 min-w-0 overflow-auto">
         <div key={page} className="page-enter">
