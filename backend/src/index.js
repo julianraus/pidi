@@ -16,6 +16,7 @@ import logisticsRoutes from './routes/logistics.js';
 import forecastRoutes  from './routes/forecast.js';
 import { pollWeatherData } from './services/bmkgService.js';
 import { pollPriceData } from './services/priceService.js';
+import { refreshProvincePriceSnapshot } from './services/biProvinceSnapshot.js';
 
 validateEnv();
 
@@ -127,6 +128,16 @@ if (process.env.NODE_ENV !== 'test') {
   cron.schedule(process.env.PRICE_POLL_INTERVAL || '0 6 * * *', async () => {
     console.log('[CRON] Polling BPS/BAPANAS price data...');
     await pollPriceData().catch(console.error);
+  });
+
+  // Refresh per-province price snapshot (for the national choropleth) daily at 06:30
+  cron.schedule(process.env.PROVINCE_SNAPSHOT_INTERVAL || '30 6 * * *', async () => {
+    console.log('[CRON] Refreshing per-province BI price snapshot...');
+    const written = await refreshProvincePriceSnapshot({ commodityCode: 'BERAS' }).catch((e) => {
+      console.error('[CRON] province snapshot failed:', e.message);
+      return 0;
+    });
+    console.log(`[CRON] province snapshot rows written: ${written}`);
   });
 }
 

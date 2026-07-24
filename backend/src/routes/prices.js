@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { query } from '../db.js';
 import { cached } from '../cache.js';
+import { readProvincePriceSnapshot, refreshProvincePriceSnapshot } from '../services/biProvinceSnapshot.js';
 
 const router = Router();
 
@@ -191,6 +192,66 @@ router.get('/producer-margin', async (req, res, next) => {
     }, parseInt(process.env.CACHE_TTL_PRICES) || 3600);
 
     res.json({ success: true, data });
+  } catch (err) { next(err); }
+});
+
+// GET /api/prices/provinces?commodity=BERAS
+// Per-province latest price snapshot (BI Harga Pangan, no aggregation) used to
+// colour the national choropleth. Reads from province_price_snapshot; returns
+// populated:false gracefully when the table is empty so the map falls back to
+// region-level colouring. Includes a pressure tone vs the national median.
+router.get('/provinces', async (req, res, next) => {
+  try {
+    const commodity = (req.query.commodity || 'BERAS').toUpperCase();
+    const rows = await cached(`prices:provinces:${commodity}`, async () => {
+      try {
+        return await readProvincePriceSnapshot(commodity);
+      } catch (err) {
+        // Table may not exist yet (never refreshed) - treat as empty, not error.
+        if (/relation .* does not exist/i.test(err.message)) return [];
+        throw err;
+      }
+    }, 1800);
+
+    if (!rows.length) {
+      return res.json({ success: true, data: { commodity, populated: false, provinces: [] } });
+    }
+
+    const prices = rows.map((r) => Number(r.price_idr)).sort((a, b) => a - b);
+    const median = prices[Math.floor(prices.length / 2)];
+    // Tone by deviation from national median: cheaper = less pressure (positive),
+    // pricier = more pressure (danger). +/-4% band counts as balanced (warning).
+    const provinces = rows.map((r) => {
+      const price = Number(r.price_idr);
+      const dev = median ? (price - median) / median : 0;
+      const tone = dev > 0.04 ? 'danger' : dev < -0.04 ? 'positive' : 'warning';
+      return {
+        province: r.province,
+        price_idr: price,
+        as_of: r.as_of,
+        dev_from_median_pct: Math.round(dev * 1000) / 10,
+        tone,
+      };
+    });
+
+    res.json({ success: true, data: { commodity, populated: true, national_median: median, provinces } });
+  } catch (err) { next(err); }
+});
+
+// POST /api/prices/provinces/refresh  (token-guarded write)
+// Triggers a live BI scrape of all provinces and upserts the snapshot table.
+// Guarded by ADMIN_REFRESH_TOKEN so it can be run against the deployed backend
+// (where the DB is reachable) even from networks where port 5432 is blocked.
+router.post('/provinces/refresh', async (req, res, next) => {
+  try {
+    const token = process.env.ADMIN_REFRESH_TOKEN;
+    const provided = req.get('x-admin-token') || req.query.token;
+    if (!token || provided !== token) {
+      return res.status(401).json({ success: false, error: 'unauthorized' });
+    }
+    const commodity = (req.query.commodity || 'BERAS').toUpperCase();
+    const written = await refreshProvincePriceSnapshot({ commodityCode: commodity });
+    res.json({ success: true, data: { commodity, written } });
   } catch (err) { next(err); }
 });
 

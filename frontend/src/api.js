@@ -33,6 +33,7 @@ export const pricesApi = {
   getInflation:   ()           => api.get('/prices/inflation'),
   getHistory:     (code, days) => api.get(`/prices/history/${code}`, { params: { days } }),
   getRegional:    (code)       => api.get(`/prices/regional/${code}`),
+  getProvinces:   (commodity = 'BERAS') => api.get('/prices/provinces', { params: { commodity } }),
 };
 
 export const logisticsApi = {
