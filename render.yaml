@@ -44,3 +44,7 @@ services:
         value: 7000
       - key: ANTHROPIC_API_KEY
         sync: false
+      - key: ADMIN_REFRESH_TOKEN
+        sync: false
+      - key: PROVINCE_SNAPSHOT_INTERVAL
+        value: 30 6 * * *

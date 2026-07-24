@@ -1,6 +1,6 @@
 import { useData } from '../hooks/useData.js';
 import { supplyApi, weatherApi, pricesApi, logisticsApi, forecastApi } from '../api.js';
-import { MetricCard, StatusBadge, AlertBanner, LoadingSpinner, ProgressBar, RegionMap, ScoreRing } from '../components/shared/index.jsx';
+import { MetricCard, StatusBadge, AlertBanner, LoadingSpinner, ProgressBar, ChoroplethMap, ScoreRing } from '../components/shared/index.jsx';
 
 const DASHBOARD_FALLBACK = {
   balance: {
@@ -80,6 +80,7 @@ export default function Dashboard() {
   const { data: regionsRaw } = useData(() => supplyApi.getRegions('BERAS'), [], { pollInterval: 300000 });
   const { data: routesRaw } = useData(() => logisticsApi.getRoutes(), [], { pollInterval: 600000 });
   const { data: resilienceRaw } = useData(() => forecastApi.getResilience(), [], { pollInterval: 600000 });
+  const { data: provincePricesRaw } = useData(() => pricesApi.getProvinces('BERAS'), [], { pollInterval: 900000 });
 
   const fmtTon = (value) => value ? `${(+value / 1000).toFixed(0)} ribu ton` : '-';
   const fmtPct = (value) => value != null ? `${+value > 0 ? '+' : ''}${(+value).toFixed(1)}%` : '-';
@@ -131,13 +132,35 @@ export default function Dashboard() {
   const currentScore = Number(resilienceScore ?? foodSecurityIndex) || 0;
   const readinessLabel = currentScore >= 70 ? 'Aman dipantau' : currentScore >= 55 ? 'Butuh intervensi terarah' : 'Prioritas tinggi';
 
-  const regionMapData = regionList.map((region) => ({
-    code: region.code,
-    label: region.region_name,
-    value: `${+region.balance_ton >= 0 ? '+' : ''}${Math.round((+region.balance_ton || 0) / 1000)}K`,
-    note: region.status === 'deficit' ? 'Defisit pasokan' : region.status === 'surplus' ? 'Surplus pasokan' : 'Hampir seimbang',
-    tone: region.status === 'deficit' ? 'danger' : region.status === 'surplus' ? 'positive' : 'warning',
+  const toneFor = (status) => status === 'deficit' ? 'danger' : status === 'surplus' ? 'positive' : 'warning';
+  const noteFor = (status) => status === 'deficit' ? 'Defisit pasokan' : status === 'surplus' ? 'Surplus pasokan' : 'Hampir seimbang';
+
+  // Samakan kode wilayah ke skema kanonik peta (SM/JW/KL/SL/NT/PM). Backend asli
+  // sudah memakai skema ini; fallback offline memakai alias lama, jadi dinormalkan.
+  const REGION_CODE_ALIAS = { SUM: 'SM', JAW: 'JW', KAL: 'KL', SUL: 'SL', BNT: 'NT', PMA: 'PM' };
+  const canonRegion = (code) => REGION_CODE_ALIAS[code] || code;
+
+  // Data per 6 wilayah agregasi; peta choropleth mewariskannya ke tiap provinsi
+  // yang belum punya data harga per-provinsi.
+  const regionMapData = regionList.reduce((acc, region) => {
+    acc[canonRegion(region.code)] = {
+      tone: toneFor(region.status),
+      value: `${+region.balance_ton >= 0 ? '+' : ''}${Math.round((+region.balance_ton || 0) / 1000)}K ton`,
+      note: `${region.region_name} - ${noteFor(region.status)}`,
+    };
+    return acc;
+  }, {});
+
+  // Data harga beras per PROVINSI (BI Harga Pangan, tanpa agregasi). Kalau
+  // snapshot sudah terisi, peta diwarnai per provinsi berdasarkan tekanan harga
+  // vs median nasional - mengalahkan warisan wilayah di atas.
+  const provinceData = (provincePricesRaw?.populated ? provincePricesRaw.provinces : []).map((p) => ({
+    name: p.province,
+    tone: p.tone,
+    value: `Rp ${Number(p.price_idr).toLocaleString('id-ID')}`,
+    note: `Beras - ${p.dev_from_median_pct > 0 ? '+' : ''}${p.dev_from_median_pct}% vs median nasional`,
   }));
+  const provincePriceMode = Boolean(provincePricesRaw?.populated);
 
   return (
     <div className="p-4 sm:p-6 space-y-6 max-w-7xl">
@@ -254,15 +277,36 @@ export default function Dashboard() {
       <div className="card reveal-3">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-sm font-medium">Peta Status Nasional</h3>
-            <p className="text-xs text-gray-400 mt-0.5">Ringkasan cepat keseimbangan pasokan beras per wilayah agregasi</p>
+            <h3 className="text-sm font-medium">Peta Status Nasional - 34 Provinsi</h3>
+            <p className="text-xs text-gray-400 mt-0.5">
+              {provincePriceMode
+                ? 'Tekanan harga beras per provinsi vs median nasional (BI Harga Pangan). Arahkan kursor untuk detail.'
+                : 'Tekanan pasokan beras per provinsi, diwarnai per wilayah agregasi. Arahkan kursor untuk detail.'}
+            </p>
           </div>
-          {topRisk && <StatusBadge status={topRisk.risk_level} label={`Risiko tertinggi: ${topRisk.region_name}`} />}
+          <div className="flex items-center gap-2">
+            {provincePriceMode && <StatusBadge status="real-time" label="Harga per provinsi (BI)" />}
+            {topRisk && <StatusBadge status={topRisk.risk_level} label={`Risiko: ${topRisk.region_name}`} />}
+          </div>
         </div>
         {!regionList.length ? <LoadingSpinner text="Memuat peta nasional..." /> : (
-          <RegionMap
-            regions={regionMapData}
-            caption="Warna menunjukkan tekanan supply-demand. Hijau surplus, merah defisit, kuning relatif seimbang."
+          <ChoroplethMap
+            data={provinceData}
+            regionData={regionMapData}
+            legend={provincePriceMode ? [
+              { tone: 'positive', label: 'Harga di bawah median' },
+              { tone: 'warning', label: 'Sekitar median (+/-4%)' },
+              { tone: 'danger', label: 'Harga di atas median' },
+              { tone: 'nodata', label: 'Data belum tersedia' },
+            ] : [
+              { tone: 'positive', label: 'Surplus pasokan' },
+              { tone: 'warning', label: 'Hampir seimbang' },
+              { tone: 'danger', label: 'Defisit pasokan' },
+              { tone: 'nodata', label: 'Data belum tersedia' },
+            ]}
+            caption={provincePriceMode
+              ? 'Sumber: harga beras harian BI Harga Pangan per provinsi (tanpa agregasi). Warna = deviasi harga terhadap median 34 provinsi.'
+              : 'Sumber neraca: agregasi 6 wilayah (produksi beras BPS). Warna provinsi mewarisi status wilayahnya - granularitas harga per-provinsi aktif setelah snapshot BI di-refresh.'}
           />
         )}
       </div>
