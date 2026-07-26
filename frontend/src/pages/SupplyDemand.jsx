@@ -7,6 +7,15 @@ import { useData } from '../hooks/useData.js';
 import { supplyApi, weatherApi } from '../api.js';
 import { MetricCard, StatusBadge, AlertBanner, LoadingSpinner, ProgressBar, RegionMap } from '../components/shared/index.jsx';
 
+// Mirrors bmkgService.classifyOni() phases stored as `elnino_phase`, so the
+// scenario caption always names the phase the model actually ran on.
+const ENSO_LABEL = {
+  el_nino: 'El Nino',
+  weak_la_nina: 'La Nina lemah',
+  strong_la_nina: 'La Nina kuat',
+  neutral: 'ENSO netral',
+};
+
 const RISK_COLOR = { critical: '#ef4444', high: '#f59e0b', medium: '#3b82f6', normal: '#22c55e' };
 const RISK_BAR = { critical: 'bg-red-500', high: 'bg-yellow-500', medium: 'bg-blue-400', normal: 'bg-green-400' };
 
@@ -66,6 +75,14 @@ export default function SupplyDemand() {
         <div>
           <h1 className="text-2xl font-medium">Penawaran &amp; Permintaan</h1>
           <p className="text-sm text-gray-500 mt-0.5">Neraca pasokan antar wilayah + prediksi risiko cuaca</p>
+          {/* This page mixes real BPS production with seeded demand/stock, so it
+              must carry the same lineage labelling the rest of the app uses -
+              otherwise the precise tonnage here reads as fully verified data. */}
+          <div className="flex flex-wrap items-center gap-2 mt-2">
+            <StatusBadge status="official-release" label="Produksi: BPS" />
+            <StatusBadge status="real-time" label="Cuaca: BMKG" />
+            <StatusBadge status="unavailable" label="Permintaan & stok: seed, menunggu Bapanas/Bulog" />
+          </div>
         </div>
         <select className="text-sm border border-gray-200 rounded-lg px-3 py-1.5 bg-white"
           value={commodity} onChange={(e) => setCommodity(e.target.value)}>
@@ -147,7 +164,9 @@ export default function SupplyDemand() {
       {scenarioChart.length > 0 && (
         <div className="card">
           <h3 className="text-sm font-medium mb-1">Proyeksi Pasokan — 3 Skenario (Apr–Sep 2026)</h3>
-          <p className="text-xs text-gray-400 mb-4">Berdasarkan prakiraan La Nina lemah BMKG</p>
+          <p className="text-xs text-gray-400 mb-4">
+            Keluaran model, memakai fase {ENSO_LABEL[riskData.find((r) => r.elnino_phase)?.elnino_phase] || 'ENSO terkini'} (indeks NOAA) dan prakiraan curah hujan BMKG
+          </p>
           <ResponsiveContainer width="100%" height={220}>
             <LineChart data={scenarioChart}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
@@ -201,9 +220,14 @@ export default function SupplyDemand() {
 
       {assignments.length > 0 && (
         <div className="card">
-          <h3 className="text-sm font-medium mb-1">Rencana Redistribusi Optimal</h3>
+          <div className="flex flex-wrap items-start justify-between gap-2 mb-1">
+            <h3 className="text-sm font-medium">Rencana Redistribusi Optimal</h3>
+            <StatusBadge status="forecast" label="Keluaran model" />
+          </div>
           <p className="text-xs text-gray-400 mb-4">
             Total: {(redist.summary?.total_volume_ton || 0).toLocaleString('id-ID')} ton · Rp {(redist.summary?.total_cost_idr || 0).toLocaleString('id-ID')} · {redist.summary?.duration_weeks || 12} minggu
+            <br />
+            Biaya dan kapasitas masih estimasi — belum terhubung data operator logistik, jadi angka ini rencana simulasi, bukan rencana pengadaan.
           </p>
           <table className="table-base">
             <thead>

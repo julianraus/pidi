@@ -2,6 +2,25 @@ import { useData } from '../hooks/useData.js';
 import { weatherApi } from '../api.js';
 import { MetricCard, StatusBadge, AlertBanner, LoadingSpinner, ProgressBar, RegionMap } from '../components/shared/index.jsx';
 
+// NOAA Oceanic Nino Index phases, as classified by bmkgService.classifyOni()
+// and stored per risk row as `elnino_phase`. Labelled here so the UI always
+// reports the phase the risk model actually used - never a hardcoded guess.
+const ENSO_LABEL = {
+  el_nino: 'El Nino',
+  weak_la_nina: 'La Nina Lemah',
+  strong_la_nina: 'La Nina Kuat',
+  neutral: 'Netral',
+};
+
+function ensoPhaseOf(risks) {
+  const phase = risks.find((risk) => risk.elnino_phase)?.elnino_phase;
+  if (!phase) return { value: 'Belum tersedia', sub: 'Menunggu pembaruan indeks NOAA' };
+  return {
+    value: ENSO_LABEL[phase] || phase,
+    sub: 'Indeks NOAA ONI, dipakai model risiko panen',
+  };
+}
+
 const RISK_BG = { critical: 'bg-red-50 border-red-200', high: 'bg-yellow-50 border-yellow-200', medium: 'bg-blue-50 border-blue-200', normal: 'bg-green-50 border-green-100' };
 const RISK_TEXT = { critical: 'text-red-700', high: 'text-yellow-700', medium: 'text-blue-700', normal: 'text-green-700' };
 const RISK_BAR = { critical: 'bg-red-500', high: 'bg-yellow-500', medium: 'bg-blue-400', normal: 'bg-green-400' };
@@ -82,7 +101,7 @@ export default function Weather() {
         <MetricCard label="Wilayah Risiko Kritis" value={criticalCount} sub="Perlu intervensi segera" valueClass={criticalCount > 0 ? 'text-red-500' : 'text-green-600'} />
         <MetricCard label="Wilayah Risiko Tinggi" value={highCount} sub="Tindakan preventif" valueClass={highCount > 0 ? 'text-yellow-600' : 'text-green-600'} />
         <MetricCard label="Potensi Kehilangan Panen" value={totalLoss > 0 ? `${Math.round(totalLoss / 1000)}K ton` : 'Belum terukur'} sub={latestRisk ? `Update risiko ${new Date(latestRisk.scored_at).toLocaleDateString('id-ID')}` : 'Menunggu pengayaan supply'} valueClass="text-yellow-600" />
-        <MetricCard label="Fase ENSO" value="La Nina Lemah" sub="Asumsi model risiko saat ini" valueClass="text-blue-600" />
+        <MetricCard label="Fase ENSO" value={ensoPhaseOf(risks).value} sub={ensoPhaseOf(risks).sub} valueClass="text-blue-600" />
       </div>
 
       <div className="card">
