@@ -1,0 +1,134 @@
+{
+ "as_of": "27 July 2026",
+ "spread_pct": 42,
+ "cheapest": {
+  "name": "Nusa Tenggara Barat",
+  "price": 13800
+ },
+ "priciest": {
+  "name": "Kalimantan Tengah",
+  "price": 19550,
+  "dev": 22.6
+ },
+ "median": 15950,
+ "above_median": 11,
+ "provinces": 34,
+ "resilience": 53,
+ "resilience_level": "siaga_1",
+ "macro": {
+  "as_of": "2026-07-17",
+  "usd_idr": 17944,
+  "usd_idr_change_ptp_pct": 1.4,
+  "bi_rate_pct": 5.75,
+  "headline_inflation_yoy_pct": 3.34,
+  "headline_inflation_mtm_pct": 0.44,
+  "volatile_food_yoy_pct": 5.58,
+  "volatile_food_mtm_pct": 0.14,
+  "food_group_mtm_pct": 0.39,
+  "food_group_mtm_contribution_pct": 0.12,
+  "import_growth_yoy_pct": 14.44,
+  "import_value_jan_feb_usd_billion": 42.09,
+  "key_food_drivers": [
+   "Cabai merah",
+   "Bawang merah",
+   "Bawang putih",
+   "Beras",
+   "Ayam ras"
+  ],
+  "sources": [
+   {
+    "label": "BPS Inflasi Juni 2026",
+    "url": "https://www.bps.go.id/en/pressrelease/2026/07/01/2590/inflasi-year-on-year--y-on-y--pada-juni-2026-sebesar-3-34-persen-.html"
+   },
+   {
+    "label": "BI RDG 17-18 Juni 2026 - BI-Rate naik ke 5,75%",
+    "url": "https://www.bi.go.id/id/publikasi/ruang-media/news-release/Pages/sp_2812626.aspx"
+   },
+   {
+    "label": "Kurs JISDOR BI, 17 Juli 2026",
+    "url": "https://databoks.katadata.co.id/pasar/statistik/6a5a3cf30e232/rupiah-bi-jisdor-menguat-menjadi-17944-per-dolar-as-jumat-17-juli-2026"
+   },
+   {
+    "label": "BPS Ekspor-Impor Februari 2026",
+    "url": "https://www.bps.go.id/assets/pressrelease/2026/04/01/2557/ekspor-dan-impor-indonesia-februari-2026-masing-masing-tercatat-usd-22-17-miliar-dan-usd-20-89-miliar-.html"
+   },
+   {
+    "label": "Bapanas Peraturan 9/2025",
+    "url": "https://peraturan.go.id/filespengundangan/peraturan-bapanas-no-9-tahun-2025.pdf"
+   }
+  ]
+ },
+ "confidence": 68,
+ "lineage": {
+  "real-time": 2,
+  "official-release": 1,
+  "forecast": 1,
+  "unavailable": 2
+ },
+ "decision_plan": [
+  {
+   "priority": 1,
+   "title": "Pre-positioning stok ke Bali & Nusa Tenggara",
+   "rationale": "Defisit beras sekitar 69K ton membutuhkan redistribusi sebelum tekanan harga lokal membesar.",
+   "owner": "Bulog, TPID, Dinas Pangan",
+   "timeframe": "0-14 hari",
+   "expected_metric": "Gap pasokan wilayah turun minimal 30%",
+   "type": "redistribution"
+  },
+  {
+   "priority": 2,
+   "title": "Mitigasi risiko panen di Sulawesi",
+   "rationale": "Skor risiko 76% mengindikasikan potensi gangguan produksi yang perlu ditutup dengan buffer stok dan respons lapangan.",
+   "owner": "Dinas Pertanian, BMKG, penyuluh",
+   "timeframe": "0-21 hari",
+   "expected_metric": "Alert risiko tervalidasi dan rencana mitigasi aktif",
+   "type": "climate"
+  },
+  {
+   "priority": 3,
+   "title": "Pantau dan intervensi Bawang Merah",
+   "rationale": "Komoditas ini menjadi sinyal volatilitas harga. Intervensi dapat berupa operasi pasar, penguatan pasokan, atau inspeksi rantai distribusi.",
+   "owner": "TPID, Bapanas, Disperindag",
+   "timeframe": "0-7 hari",
+   "expected_metric": "Anomali harga turun atau pasokan pasar bertambah",
+   "type": "price"
+  }
+ ],
+ "deficit_regions": 3,
+ "double_risk": [
+  "Sumatera",
+  "Papua & Maluku"
+ ],
+ "regions": [
+  {
+   "name": "Jawa",
+   "balance_k": 102,
+   "status": "surplus"
+  },
+  {
+   "name": "Sumatera",
+   "balance_k": -13,
+   "status": "deficit"
+  },
+  {
+   "name": "Kalimantan",
+   "balance_k": -7,
+   "status": "balanced"
+  },
+  {
+   "name": "Sulawesi",
+   "balance_k": 0,
+   "status": "balanced"
+  },
+  {
+   "name": "Bali & Nusa Tenggara",
+   "balance_k": -69,
+   "status": "deficit"
+  },
+  {
+   "name": "Papua & Maluku",
+   "balance_k": -61,
+   "status": "deficit"
+  }
+ ]
+}
