@@ -76,8 +76,10 @@ disparitas 42 persen antara NTB dan Kalimantan Tengah.
 
 **Ketiga, mengubah dashboard menjadi alat keputusan.** Ditambahkan role switcher
 per instansi, simulator skenario shock, panel Source Health, dan export decision
-brief. Pemicunya audit internal dan persiapan validasi pengguna, bukan feedback
-lapangan.
+brief. Audit terakhir juga memperbaiki dua ketidakkonsistenan yang kini sudah
+live: label fase ENSO yang sempat hardcoded dan bertentangan dengan data NOAA
+sistem sendiri, serta satu halaman yang menampilkan tonase tanpa label sumber.
+Pemicunya audit internal.
 
 ---
 
@@ -215,7 +217,9 @@ opsional. Peta choropleth dirender sebagai SVG inline tanpa library peta
 eksternal. Setiap dataset disimpan dengan label sumber dan timestamp sehingga
 status data dapat diaudit dari respons API, bukan sekadar klaim di antarmuka —
 data confidence saat ini 68 persen, dihitung dari komposisi lineage, dan sengaja
-tidak dibulatkan.
+tidak dibulatkan. Nilai turunan seperti fase ENSO tidak ditulis tetap di
+antarmuka melainkan dibaca dari baris data yang benar-benar dipakai model,
+sehingga tampilan tidak dapat melenceng dari data ketika kondisi berubah.
 
 **Keamanan.** API key hanya di backend dan tidak dikirim ke browser; environment
 variable divalidasi saat startup; CORS dan rate limiting aktif; endpoint penulis
@@ -361,9 +365,12 @@ institusional yang lebih layak dipercaya pengambil kebijakan.
 **Pengujian yang sudah dilakukan** bersifat teknis internal: verifikasi endpoint
 API, verifikasi build produksi, dan pengujian langsung terhadap scraper dan API
 eksternal untuk memastikan data benar-benar dapat ditarik live. Pengujian ini
-menemukan dan memperbaiki bug nyata — kode wilayah BMKG yang tidak valid, label
-sumber yang keliru pada jalur fallback harga, dan ketidakcocokan kode wilayah
-yang membuat peta tidak terwarnai saat mode offline.
+menemukan dan memperbaiki lima bug nyata: kode wilayah BMKG tidak valid; label
+sumber keliru pada jalur fallback harga; kode wilayah tidak cocok sehingga peta
+tak terwarnai saat offline; label fase ENSO hardcoded yang bertentangan dengan
+data NOAA sistem sendiri; dan satu halaman yang menampilkan tonase presisi tanpa
+label sumber. Dua temuan terakhir muncul saat menyiapkan demo — bukti audit
+internal masih berjalan.
 
 **Usability testing dengan pengguna eksternal belum dilakukan.** Ini keterbatasan
 yang kami nyatakan terbuka, bukan kami tutupi. Instrumen kuesioner terstruktur
@@ -428,7 +435,9 @@ cockpit keputusan, peta nasional, dan visualisasi data lineage. Jonathan Wibowo
 modul frontend dan beberapa service backend; empat integrasi data eksternal
 real-time yang sudah diuji langsung menghasilkan data live, termasuk harga beras
 34 provinsi; deploy publik yang dapat diakses dan diuji siapa pun; serta
-kebijakan data lineage yang diterapkan konsisten di seluruh endpoint. Tim juga
+kebijakan data lineage yang kini diterapkan konsisten di seluruh endpoint dan
+seluruh halaman yang menampilkan angka — konsistensi itu ditegakkan lewat audit
+internal, termasuk memperbaiki halaman yang sempat luput. Tim juga
 menembus hambatan integrasi nyata — WAF milik BPS WebAPI dan endpoint BI yang
 tidak berdokumentasi — yang menunjukkan kemampuan eksekusi teknis di domain sulit.
 

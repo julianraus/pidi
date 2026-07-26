@@ -9,39 +9,23 @@ Semua angka di bawah ditarik dari API live saat dokumen ini dibuat.
 
 ---
 
-## ⚠ DUA HAL YANG WAJIB DIBERESKAN DULU
+## ✓ DUA MASALAH LAMA — SUDAH DIPERBAIKI DAN LIVE
 
-### 1. Ada teks "La Nina Lemah" yang bertentangan dengan data Anda sendiri
+Panduan versi awal memperingatkan dua hal. **Keduanya sudah diperbaiki dan
+ter-deploy**, jadi tidak ada lagi halaman yang perlu dihindari:
 
-Muncul di dua tempat:
-- Halaman **Penawaran & Permintaan** → *"Berdasarkan prakiraan La Nina lemah BMKG"*
-- Halaman **Cuaca & Risiko Panen** → kartu *Fase ENSO: "La Nina Lemah"*
+1. **Label ENSO** yang sempat tertulis "La Nina Lemah" di halaman *Cuaca &
+   Risiko Panen* dan *Penawaran & Permintaan* kini membaca fase asli dari
+   indeks NOAA — saat ini **El Nino**. Halaman Cuaca aman dibuka.
+2. **Halaman Penawaran & Permintaan** kini menampilkan badge sumber data di
+   header (Produksi: BPS · Cuaca: BMKG · Permintaan & stok: seed) dan rencana
+   redistribusi diberi badge **"Keluaran model"** beserta catatan bahwa biaya
+   dan kapasitas masih estimasi.
 
-Padahal integrasi NOAA Anda menarik fase ENSO aktual, dan seluruh proposal Anda
-menyebut **El Niño**. Teks di Penawaran & Permintaan bahkan mengatributkannya ke
-BMKG — atribusi sumber yang tidak akurat.
-
-**Risiko:** investor yang paham iklim, atau juri yang membaca proposal Anda,
-akan menangkapnya. Untuk produk yang menjual kejujuran data, ini merusak.
-
-> **Saya bisa perbaiki dalam beberapa menit** — bilang saja. Kalau belum sempat:
-> **jangan buka halaman Cuaca & Risiko Panen**, dan saat di Penawaran &
-> Permintaan **jangan menyorot grafik 3 Skenario**.
-
-### 2. Halaman Penawaran & Permintaan tidak menampilkan label sumber data
-
-Halaman itu menampilkan tonase pasokan/permintaan yang presisi dan rencana
-redistribusi senilai **Rp86,2 miliar** — tanpa satu pun badge status data,
-padahal `data_provenance` Anda sendiri menandai supply-demand sebagai
-**`unavailable`** (masih seed, bukan data Bapanas/Bulog).
-
-**Ini halaman paling memukau untuk investor — sekaligus paling berbahaya.**
-Kalau Anda menyebutnya "data real", lalu investor melakukan due diligence dan
-menemukan itu seed, kepercayaan hilang seluruhnya.
-
-> **Aturan mati saat demo:** setiap kali membuka halaman ini, ucapkan kalimat
-> pembatas di Langkah 3 — kata demi kata. Kejujuran ini justru **menaikkan**
-> nilai Anda di mata investor serius.
+> **Ini justru menguntungkan Anda saat demo.** Kalimat pembatas di Langkah 3
+> tidak lagi terdengar seperti pengakuan mendadak — investor sudah melihat
+> labelnya di layar, dan Anda tinggal menegaskannya. Menandai batas data
+> sendiri sebelum ditanya adalah sinyal kredibilitas yang kuat.
 
 ---
 
@@ -140,9 +124,9 @@ Ini bukti "produk hidup" paling murah dan paling meyakinkan yang Anda punya.
 > tiga ribu ton, senilai delapan puluh enam koma dua miliar rupiah, dalam dua
 > belas minggu — lengkap dengan asal, tujuan, moda, dan durasi.*
 >
-> *Saya perlu jujur soal satu hal. Angka harga dan cuaca di sini real-time.
-> Tapi tonase pasokan dan biaya logistik ini masih keluaran model di atas data
-> awal — kami belum punya akses data stok Bapanas dan Bulog. Begitu kemitraan
+> *Anda lihat label di layar — dan saya perlu menegaskannya. Angka harga dan
+> cuaca di sini real-time. Tapi tonase pasokan dan biaya logistik ini masih
+> keluaran model di atas data awal — kami belum punya akses data stok Bapanas dan Bulog. Begitu kemitraan
 > data itu terbuka, angka ini menjadi rencana operasional sungguhan. Itu
 > justru salah satu hal yang kami cari dari investor: akses."*
 
@@ -227,7 +211,7 @@ Lewati Simulator, Resilience Room, dan Market & Evidence.
 
 | Halaman | Alasan |
 |---|---|
-| **Cuaca & Risiko Panen** | Memuat kartu "Fase ENSO: La Nina Lemah" yang bertentangan dengan data NOAA Anda. Jangan dibuka sampai diperbaiki. |
+| **Cuaca & Risiko Panen** | Sudah aman dibuka (label ENSO diperbaiki). Tetap dilewati di alur utama hanya karena isinya tumpang tindih dengan risiko panen yang sudah Anda tunjukkan di Langkah 3. |
 | **AI Forecasting** | Masih memakai template offline (ANTHROPIC_API_KEY belum diisi). Kalau investor bertanya soal AI, jawab dari sisi rule-based yang transparan — itu lebih kuat, bukan lebih lemah. |
 | **Inflasi Pangan** | Isinya bagus tapi tumpang tindih dengan yang sudah Anda tunjukkan. Simpan sebagai cadangan kalau ditanya soal tren harga. |
 | **Logistik Cerdas** | Biaya dan kapasitas masih estimasi. Buka hanya kalau investor bertanya spesifik soal logistik, dan sebut statusnya. |
