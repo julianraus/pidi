@@ -79,7 +79,6 @@ per instansi, simulator skenario shock, panel Source Health, dan export decision
 brief. Audit terakhir juga memperbaiki dua ketidakkonsistenan yang kini sudah
 live: label fase ENSO yang sempat hardcoded dan bertentangan dengan data NOAA
 sistem sendiri, serta satu halaman yang menampilkan tonase tanpa label sumber.
-Pemicunya audit internal.
 
 ---
 
