@@ -5,7 +5,7 @@ import {
 import { useData } from '../hooks/useData.js';
 import { logisticsApi } from '../api.js';
 import {
-  MetricCard, StatusBadge, LoadingSpinner, ErrorState, RegionMap, ProgressBar,
+  MetricCard, StatusBadge, LoadingSpinner, ErrorState, ChoroplethMap, ProgressBar,
 } from '../components/shared/index.jsx';
 
 const effColor = (value) => +value >= 75 ? '#22c55e' : +value >= 60 ? '#f59e0b' : '#ef4444';
@@ -286,7 +286,7 @@ export default function Logistics() {
         ) : !routeList.length ? (
           <UnavailableLogisticsPanel message="Belum ada rute aktif." onRetry={refresh} />
         ) : (
-          <RegionMap
+          <ChoroplethMap
             regions={regions}
             connections={connectionData}
             caption="Network view berdasarkan rute aktif di database prototype."

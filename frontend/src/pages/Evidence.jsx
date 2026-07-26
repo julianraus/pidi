@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
-import { MetricCard, ProgressBar, StatusBadge } from '../components/shared/index.jsx';
+import { useData } from '../hooks/useData.js';
+import { pricesApi } from '../api.js';
+import { MetricCard, ProgressBar, StatusBadge, ChoroplethMap, LoadingSpinner } from '../components/shared/index.jsx';
 
 const TABS = [
   { id: 'demand', label: 'Demand' },
@@ -230,6 +232,21 @@ export default function Evidence() {
 
   const signal = DEMAND_SIGNALS[selectedSignal] || DEMAND_SIGNALS[0];
 
+  // Disparitas harga per provinsi adalah bukti demand paling kuat yang kami
+  // punya, karena dihasilkan sistem sendiri - bukan kutipan rilis pihak lain.
+  const { data: provincePrices } = useData(() => pricesApi.getProvinces('BERAS'), [], { pollInterval: 900000 });
+  const priceRows = provincePrices?.populated ? provincePrices.provinces : [];
+  const priceMapData = priceRows.map((p) => ({
+    name: p.province,
+    tone: p.tone,
+    value: `Rp ${Number(p.price_idr).toLocaleString('id-ID')}`,
+    note: `${p.dev_from_median_pct > 0 ? '+' : ''}${p.dev_from_median_pct}% vs median nasional`,
+  }));
+  const sortedPrices = [...priceRows].sort((a, b) => a.price_idr - b.price_idr);
+  const spreadPct = sortedPrices.length
+    ? Math.round(((sortedPrices[sortedPrices.length - 1].price_idr - sortedPrices[0].price_idr) / sortedPrices[0].price_idr) * 100)
+    : null;
+
   return (
     <div className="p-4 sm:p-6 space-y-6 max-w-7xl">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
@@ -245,6 +262,34 @@ export default function Evidence() {
           <StatusBadge status="forecast" label="Forecast labelled" />
           <StatusBadge status="ready" label="Pilot-ready story" />
         </div>
+      </div>
+
+      <div className="card">
+        <div className="flex flex-wrap items-start justify-between gap-2 mb-4">
+          <div>
+            <h3 className="text-sm font-medium">Bukti Visual: Disparitas Harga Beras Antarprovinsi</h3>
+            <p className="text-xs text-gray-400 mt-0.5">
+              Ditarik sistem langsung dari BI Harga Pangan — bukan kutipan rilis pihak lain
+            </p>
+          </div>
+          {spreadPct != null && <StatusBadge status="real-time" label={`Selisih ${spreadPct}% antarprovinsi`} />}
+        </div>
+        {!priceMapData.length ? (
+          <LoadingSpinner text="Memuat peta harga per provinsi..." />
+        ) : (
+          <ChoroplethMap
+            data={priceMapData}
+            legend={[
+              { tone: 'positive', label: 'Di bawah median' },
+              { tone: 'warning', label: 'Sekitar median (±4%)' },
+              { tone: 'danger', label: 'Di atas median' },
+              { tone: 'nodata', label: 'Data belum tersedia' },
+            ]}
+            caption={sortedPrices.length
+              ? `Termurah ${sortedPrices[0].province} Rp${Number(sortedPrices[0].price_idr).toLocaleString('id-ID')} · termahal ${sortedPrices[sortedPrices.length - 1].province} Rp${Number(sortedPrices[sortedPrices.length - 1].price_idr).toLocaleString('id-ID')} pada hari yang sama.`
+              : ''}
+          />
+        )}
       </div>
 
       <div className="flex gap-1 overflow-x-auto border border-gray-200 rounded-lg bg-white p-1 w-fit max-w-full">

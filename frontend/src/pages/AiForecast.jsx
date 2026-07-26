@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useData } from '../hooks/useData.js';
 import { forecastApi, weatherApi } from '../api.js';
-import { LoadingSpinner, StatusBadge, RegionMap } from '../components/shared/index.jsx';
+import { LoadingSpinner, StatusBadge, ChoroplethMap } from '../components/shared/index.jsx';
 
 const STATUS_STYLE = {
   aman: { bg: 'bg-green-50 border-green-200', text: 'text-green-700', dot: 'bg-green-500' },
@@ -145,7 +145,7 @@ export default function AiForecast() {
           {overview?.national_status?.level && <StatusBadge status={overview.national_status.level} label={overview.national_status.level} />}
         </div>
         {!mapData.length ? <LoadingSpinner text="Memuat fokus AI..." /> : (
-          <RegionMap regions={mapData} caption="AI menggunakan peta risiko sebagai salah satu sinyal utama untuk memprioritaskan rekomendasi dan redistribusi." />
+          <ChoroplethMap regions={mapData} caption="AI menggunakan peta risiko sebagai salah satu sinyal utama untuk memprioritaskan rekomendasi dan redistribusi." />
         )}
       </div>
 

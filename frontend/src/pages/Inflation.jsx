@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import { useData } from '../hooks/useData.js';
 import { pricesApi } from '../api.js';
-import { MetricCard, StatusBadge, LoadingSpinner, RegionMap } from '../components/shared/index.jsx';
+import { MetricCard, StatusBadge, LoadingSpinner, ChoroplethMap } from '../components/shared/index.jsx';
 
 const COLORS = { CABAI: '#ef4444', BAWANG: '#f59e0b', BERAS: '#2563eb', JAGUNG: '#10b981', KEDELAI: '#8b5cf6', MINYAK: '#f97316', GULA: '#ec4899', DAGING: '#6b7280' };
 
@@ -83,7 +83,7 @@ export default function Inflation() {
           {activeCommodityCode && <StatusBadge status={inflLvl(commodities.find((commodity) => commodity.code === activeCommodityCode)?.change_yoy_pct)} label={commodities.find((commodity) => commodity.code === activeCommodityCode)?.name || 'Komoditas'} />}
         </div>
         {!regional.length ? <LoadingSpinner text="Memuat peta harga..." /> : (
-          <RegionMap
+          <ChoroplethMap
             regions={regionalMapData}
             caption={`Peta menggunakan ${commodities.find((commodity) => commodity.code === activeCommodityCode)?.name || 'komoditas aktif'}. Nilai menunjukkan persentase harga terhadap HET.`}
           />

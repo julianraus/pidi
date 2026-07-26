@@ -1,6 +1,6 @@
 import { useData } from '../hooks/useData.js';
 import { weatherApi } from '../api.js';
-import { MetricCard, StatusBadge, AlertBanner, LoadingSpinner, ProgressBar, RegionMap } from '../components/shared/index.jsx';
+import { MetricCard, StatusBadge, AlertBanner, LoadingSpinner, ProgressBar, ChoroplethMap } from '../components/shared/index.jsx';
 
 // NOAA Oceanic Nino Index phases, as classified by bmkgService.classifyOni()
 // and stored per risk row as `elnino_phase`. Labelled here so the UI always
@@ -113,7 +113,7 @@ export default function Weather() {
           {latestRisk && <StatusBadge status={latestRisk.risk_level} label={`Update ${new Date(latestRisk.scored_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}`} />}
         </div>
         {!risks.length ? <LoadingSpinner text="Memuat peta risiko..." /> : (
-          <RegionMap regions={mapData} caption="Nilai di peta adalah skor risiko. Catatan menunjukkan rata-rata hujan prakiraan harian 7 hari ke depan." />
+          <ChoroplethMap regions={mapData} caption="Nilai di peta adalah skor risiko. Catatan menunjukkan rata-rata hujan prakiraan harian 7 hari ke depan." />
         )}
       </div>
 

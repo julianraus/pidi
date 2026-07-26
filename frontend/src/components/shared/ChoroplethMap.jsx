@@ -18,6 +18,16 @@ function normalize(name) {
   return String(name || '').trim().toLowerCase();
 }
 
+// The live API returns SM/JW/KL/SL/NT/PM; the offline fallback and some older
+// route rows use SUM/JAW/KAL/SUL/BNT/PMA. Normalise so a map never silently
+// renders uncoloured because of an alias mismatch.
+const REGION_ALIAS = { SUM: 'SM', JAW: 'JW', KAL: 'KL', SUL: 'SL', BNT: 'NT', PMA: 'PM' };
+
+export function canonRegionCode(code) {
+  const c = String(code || '').trim().toUpperCase();
+  return REGION_ALIAS[c] || c;
+}
+
 // Proyeksi equirectangular sederhana - Indonesia dekat ekuator jadi
 // distorsinya kecil dan cukup untuk choropleth. Dihitung sekali (useMemo).
 function buildProjection(features) {
@@ -57,13 +67,33 @@ export function ChoroplethMap({
   regionData = {},
   selectedName,
   onSelect,
+  regions,
+  connections = [],
   legend,
   caption,
   height = 380,
 }) {
   const [hovered, setHovered] = useState(null);
 
-  const { project, viewH, shapes } = useMemo(() => {
+  // `regions` accepts the same array shape the older RegionMap took
+  // ([{code, label, value, note, tone}]), so any page can switch to this
+  // component by changing the tag name alone. Region codes are normalised
+  // because the API and the offline fallback use different aliases.
+  const regionLookup = useMemo(() => {
+    const merged = { ...regionData };
+    for (const r of regions || []) {
+      if (!r?.code) continue;
+      merged[canonRegionCode(r.code)] = {
+        tone: r.tone,
+        value: r.value,
+        note: r.note || r.label,
+        label: r.label,
+      };
+    }
+    return merged;
+  }, [regionData, regions]);
+
+  const { project, viewH, shapes, centres } = useMemo(() => {
     const proj = buildProjection(GEO.features);
     const shapes = GEO.features.map((f) => {
       const d = f.geometry.coordinates
@@ -86,7 +116,21 @@ export function ChoroplethMap({
         cy: (yMin + yMax) / 2,
       };
     });
-    return { project: proj.project, viewH: proj.height, shapes };
+    // Centre point per aggregate region, averaged from its provinces' centroids.
+    // Used to anchor route lines so the logistics view keeps its network overlay.
+    const regionCentres = {};
+    for (const s of shapes) {
+      if (!s.region) continue;
+      (regionCentres[s.region] ||= []).push([s.cx, s.cy]);
+    }
+    const centres = Object.fromEntries(
+      Object.entries(regionCentres).map(([code, pts]) => [code, [
+        pts.reduce((a, p) => a + p[0], 0) / pts.length,
+        pts.reduce((a, p) => a + p[1], 0) / pts.length,
+      ]])
+    );
+
+    return { project: proj.project, viewH: proj.height, shapes, centres };
   }, []);
 
   const dataByName = useMemo(() => {
@@ -96,7 +140,7 @@ export function ChoroplethMap({
   }, [data]);
 
   // Per-provinsi diutamakan; kalau belum ada, warisi status wilayah agregatnya.
-  const resolve = (shape) => dataByName.get(normalize(shape.name)) || regionData[shape.region];
+  const resolve = (shape) => dataByName.get(normalize(shape.name)) || regionLookup[shape.region];
 
   const active = hovered
     ? (() => {
@@ -130,6 +174,30 @@ export function ChoroplethMap({
                 onMouseLeave={() => setHovered((h) => (h === s.name ? null : h))}
                 onClick={() => onSelect?.(s.name, item, s.region)}
               />
+            );
+          })}
+
+          {/* Route overlay - drawn above the fills so distribution lines stay
+              visible on the logistics view. Endpoints are region centroids. */}
+          {connections.map((c, i) => {
+            const from = centres[canonRegionCode(c.from)];
+            const to = centres[canonRegionCode(c.to)];
+            if (!from || !to) return null;
+            const stroke = (TONE[c.tone] || TONE.neutral).hover;
+            return (
+              <g key={`${c.from}-${c.to}-${i}`}>
+                <line
+                  x1={from[0]} y1={from[1]} x2={to[0]} y2={to[1]}
+                  stroke="#ffffff" strokeWidth={(c.weight || 1.6) + 1.6}
+                  strokeLinecap="round" opacity="0.85"
+                />
+                <line
+                  x1={from[0]} y1={from[1]} x2={to[0]} y2={to[1]}
+                  stroke={stroke} strokeWidth={c.weight || 1.6}
+                  strokeLinecap="round" strokeDasharray={c.dashed ? '5 3' : undefined}
+                />
+                <circle cx={to[0]} cy={to[1]} r={(c.weight || 1.6) + 1.2} fill={stroke} stroke="#fff" strokeWidth="1" />
+              </g>
             );
           })}
         </svg>

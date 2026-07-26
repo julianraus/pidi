@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import { useData } from '../hooks/useData.js';
 import { supplyApi, weatherApi } from '../api.js';
-import { MetricCard, StatusBadge, AlertBanner, LoadingSpinner, ProgressBar, RegionMap } from '../components/shared/index.jsx';
+import { MetricCard, StatusBadge, AlertBanner, LoadingSpinner, ProgressBar, ChoroplethMap } from '../components/shared/index.jsx';
 
 // Mirrors bmkgService.classifyOni() phases stored as `elnino_phase`, so the
 // scenario caption always names the phase the model actually ran on.
@@ -111,7 +111,7 @@ export default function SupplyDemand() {
           <StatusBadge status={+(balance?.total_balance || 0) >= 0 ? 'surplus' : 'deficit'} label={`Neraca nasional ${fmtBal(balance?.total_balance)}`} />
         </div>
         {!enriched.length ? <LoadingSpinner text="Memuat peta neraca..." /> : (
-          <RegionMap regions={mapData} caption="Angka pada peta menunjukkan selisih pasokan dan permintaan bulanan. Catatan menunjukkan skor risiko cuaca terbaru." />
+          <ChoroplethMap regions={mapData} caption="Angka pada peta menunjukkan selisih pasokan dan permintaan bulanan. Catatan menunjukkan skor risiko cuaca terbaru." />
         )}
       </div>
 

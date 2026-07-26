@@ -4,8 +4,8 @@ import {
   ResponsiveContainer, Cell,
 } from 'recharts';
 import { useData } from '../hooks/useData.js';
-import { forecastApi } from '../api.js';
-import { LoadingSpinner, MetricCard, ProgressBar, StatusBadge } from '../components/shared/index.jsx';
+import { forecastApi, supplyApi, weatherApi } from '../api.js';
+import { LoadingSpinner, MetricCard, ProgressBar, StatusBadge, ChoroplethMap } from '../components/shared/index.jsx';
 
 const PRESSURE_COLORS = {
   supply: '#ef4444',
@@ -169,6 +169,8 @@ function scenarioLabel(score) {
 
 export default function Resilience() {
   const { data, loading } = useData(() => forecastApi.getResilience(), [], { pollInterval: 300000 });
+  const { data: regionsRaw } = useData(() => supplyApi.getRegions('BERAS'), [], { pollInterval: 600000 });
+  const { data: risksRaw } = useData(() => weatherApi.getRisk(), [], { pollInterval: 600000 });
   const [scenario, setScenario] = useState({
     weakerRupiah: 5,
     logisticsCostUp: 8,
@@ -191,6 +193,21 @@ export default function Resilience() {
   );
   const scenarioLevel = scenarioLabel(scenarioResilienceScore);
 
+  // Peta tekanan wilayah: nada diambil dari status neraca, catatan menambahkan
+  // skor risiko panen - dua sinyal yang justru bermakna saat dibaca bersamaan.
+  const regionRows = Array.isArray(regionsRaw) ? regionsRaw : [];
+  const riskRows = Array.isArray(risksRaw) ? risksRaw : [];
+  const pressureMapData = regionRows.map((region) => {
+    const risk = riskRows.find((r) => r.code === region.code);
+    return {
+      code: region.code,
+      label: region.region_name,
+      value: `${+region.balance_ton >= 0 ? '+' : ''}${Math.round((+region.balance_ton || 0) / 1000)}K ton`,
+      note: risk ? `Risiko panen ${Math.round(risk.risk_score)}%` : region.status,
+      tone: region.status === 'deficit' ? 'danger' : region.status === 'surplus' ? 'positive' : 'warning',
+    };
+  });
+
   if (loading && !data) return <LoadingSpinner text="Memuat cockpit resiliensi pangan..." />;
 
   return (
@@ -209,6 +226,28 @@ export default function Resilience() {
           {usingFallback && <span className="badge-yellow">Forecast mode</span>}
           <span className="badge-gray">Update makro {macro.as_of || '2026-07-17'}</span>
         </div>
+      </div>
+
+      <div className="card">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h3 className="text-sm font-medium">Peta Tekanan Wilayah</h3>
+            <p className="text-xs text-gray-400 mt-0.5">Warna menunjukkan neraca pasokan; catatan menambahkan skor risiko panen wilayah tersebut</p>
+          </div>
+          <StatusBadge status={summary.resilience_level} label={`Skor ${summary.resilience_score ?? '-'}`} />
+        </div>
+        {!pressureMapData.length ? <LoadingSpinner text="Memuat peta tekanan..." /> : (
+          <ChoroplethMap
+            regions={pressureMapData}
+            legend={[
+              { tone: 'positive', label: 'Surplus pasokan' },
+              { tone: 'warning', label: 'Hampir seimbang' },
+              { tone: 'danger', label: 'Defisit pasokan' },
+              { tone: 'nodata', label: 'Data belum tersedia' },
+            ]}
+            caption="Provinsi mewarisi status wilayah agregasinya. Arahkan kursor untuk melihat neraca dan risiko panen."
+          />
+        )}
       </div>
 
       <div className="border border-yellow-200 bg-yellow-50 rounded-lg p-4">
